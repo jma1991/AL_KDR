@@ -202,15 +202,27 @@ mnn <- correctExperiments(
 )
 ```
 
-### Post processing
-
 Delete large objects and trigger garbage collection:
 
 ```{r}
 rm(all); gc()
 ```
 
-Annotate features with identifier and name:
+### Post processing
+
+Store combined variance model:
+
+```{r}
+metadata(mnn)$combineVar <- dec
+```
+
+Store highly variable genes:
+
+```{r}
+metadata(mnn)$getTopHVGs <- hvg
+```
+
+Create feature annotation data:
 
 ```{r}
 rowData(mnn)$gene_id <- rownames(mnn)
@@ -236,18 +248,6 @@ mnn$genotype <- "wt"
 mnn$genotype[mnn$batch == "AL_KDR_HET_C"] <- "het"
 
 mnn$genotype[mnn$batch == "AL_KDR_HOM_D"] <- "hom"
-```
-
-Store combined variance model:
-
-```{r}
-metadata(mnn)$combineVar <- dec
-```
-
-Store highly variable genes:
-
-```{r}
-metadata(mnn)$getTopHVGs <- hvg
 ```
 
 ## Diagnostics
