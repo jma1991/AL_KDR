@@ -221,31 +221,21 @@ rowData(mnn)$gene_name <- mapIds(EnsDb.Mmusculus.v79, keys = rownames(mnn), colu
 Create source annotation label:
 
 ```{r}
-mnn$source <- "Atlas"
+mnn$source <- "atlas"
 
-mnn$source[mnn$batch == "AL_KDR_HET_C"] <- "Allantois-Het"
+mnn$source[mnn$batch == "AL_KDR_HET_C"] <- "allantois"
 
-mnn$source[mnn$batch == "AL_KDR_HOM_D"] <- "Allantois-Hom"
-```
-
-Create tissue annotation label:
-
-```{r}
-mnn$tissue <- "Atlas"
-
-mnn$tissue[mnn$batch == "AL_KDR_HET_C"] <- "Allantois"
-
-mnn$tissue[mnn$batch == "AL_KDR_HOM_D"] <- "Allantois"
+mnn$source[mnn$batch == "AL_KDR_HOM_D"] <- "allantois"
 ```
 
 Create genotype annotation label:
 
 ```{r}
-mnn$source <- "WT"
+mnn$genotype <- "wt"
 
-mnn$source[mnn$batch == "AL_KDR_HET_C"] <- "Het"
+mnn$genotype[mnn$batch == "AL_KDR_HET_C"] <- "het"
 
-mnn$source[mnn$batch == "AL_KDR_HOM_D"] <- "Hom"
+mnn$genotype[mnn$batch == "AL_KDR_HOM_D"] <- "hom"
 ```
 
 Store combined variance model:
