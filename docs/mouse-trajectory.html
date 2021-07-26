@@ -520,16 +520,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtreee46d99ddb557c10b94fb86b41739c688727104f6targetblanke46d99da"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jma1991/AL_KDR/tree/e46d99ddb557c10b94fb86b41739c688727104f6" target="_blank">e46d99d</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtreeca7773ef690a4445f338a75de4213e49e4780a33targetblankca7773ea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jma1991/AL_KDR/tree/ca7773ef690a4445f338a75de4213e49e4780a33" target="_blank">ca7773e</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtreee46d99ddb557c10b94fb86b41739c688727104f6targetblanke46d99da" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtreeca7773ef690a4445f338a75de4213e49e4780a33targetblankca7773ea" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/jma1991/AL_KDR/tree/e46d99ddb557c10b94fb86b41739c688727104f6" target="_blank">e46d99d</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/jma1991/AL_KDR/tree/ca7773ef690a4445f338a75de4213e49e4780a33" target="_blank">ca7773e</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -549,6 +549,7 @@ Ignored files:
     Ignored:    output/03-clustering.rds
     Ignored:    output/04-marker-detection.rds
     Ignored:    output/mouse-integration.rds
+    Ignored:    output/mouse-trajectory.rds
 
 Untracked files:
     Untracked:  _workflowr.R
@@ -608,6 +609,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jma1991/AL_KDR/blob/ca7773ef690a4445f338a75de4213e49e4780a33/analysis/mouse-trajectory.Rmd" target="_blank">ca7773e</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-26
+</td>
+<td>
+Build
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jma1991/AL_KDR/a36042fd181c53521bf85a4b19e3ffda754f851e/docs/mouse-trajectory.html" target="_blank">a36042f</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-26
+</td>
+<td>
+Build
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -901,11 +936,48 @@ ggplot(dat, aes(slingPseudotime_1, genotype, colour = celltype)) +
   geom_quasirandom(groupOnX = FALSE) + 
   scale_colour_manual(name = &quot;Celltype&quot;, values = EmbryoCelltypeColours) + 
   scale_y_discrete(labels = EmbryoGenotypeLabels) + 
-  facet_wrap(~ source, labeller = labeller(data = EmbryoSourceLabels)) + 
+  facet_wrap(~ source, labeller = labeller(source = EmbryoSourceLabels)) + 
   labs(x = &quot;Pseudotime&quot;, y = &quot;Genotype&quot;) + 
   theme_bw() + 
   theme(aspect.ratio = 1)</code></pre>
 <p><img src="figure/mouse-trajectory.Rmd/unnamed-chunk-33-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-33-1">
+Past versions of unnamed-chunk-33-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-33-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jma1991/AL_KDR/blob/4fb22ab325cecea704b501c5331876112b63252d/docs/figure/mouse-trajectory.Rmd/unnamed-chunk-33-1.png" target="_blank">4fb22ab</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-26
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Plot cells ordered by pseudotime 2 and coloured by celltype:</p>
 <pre class="r"><code>dat &lt;- makePerCellDF(sce)
 
@@ -915,11 +987,48 @@ ggplot(dat, aes(slingPseudotime_2, genotype, colour = celltype)) +
   geom_quasirandom(groupOnX = FALSE) + 
   scale_colour_manual(name = &quot;Celltype&quot;, values = EmbryoCelltypeColours) + 
   scale_y_discrete(labels = EmbryoGenotypeLabels) + 
-  facet_wrap(~ source, labeller = labeller(data = EmbryoSourceLabels)) + 
+  facet_wrap(~ source, labeller = labeller(source = EmbryoSourceLabels)) + 
   labs(x = &quot;Pseudotime&quot;, y = &quot;Genotype&quot;) + 
   theme_bw() + 
   theme(aspect.ratio = 1)</code></pre>
 <p><img src="figure/mouse-trajectory.Rmd/unnamed-chunk-34-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-34-1">
+Past versions of unnamed-chunk-34-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-34-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jma1991/AL_KDR/blob/4fb22ab325cecea704b501c5331876112b63252d/docs/figure/mouse-trajectory.Rmd/unnamed-chunk-34-1.png" target="_blank">4fb22ab</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-26
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="summary" class="section level2">
 <h2>Summary</h2>
