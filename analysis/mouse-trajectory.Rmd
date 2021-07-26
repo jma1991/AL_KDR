@@ -394,7 +394,7 @@ ggplot(dat, aes(slingPseudotime_1, genotype, colour = celltype)) +
   geom_quasirandom(groupOnX = FALSE) + 
   scale_colour_manual(name = "Celltype", values = EmbryoCelltypeColours) + 
   scale_y_discrete(labels = EmbryoGenotypeLabels) + 
-  facet_wrap(~ source, labeller = labeller(data = EmbryoSourceLabels)) + 
+  facet_wrap(~ source, labeller = labeller(source = EmbryoSourceLabels)) + 
   labs(x = "Pseudotime", y = "Genotype") + 
   theme_bw() + 
   theme(aspect.ratio = 1)
@@ -411,7 +411,7 @@ ggplot(dat, aes(slingPseudotime_2, genotype, colour = celltype)) +
   geom_quasirandom(groupOnX = FALSE) + 
   scale_colour_manual(name = "Celltype", values = EmbryoCelltypeColours) + 
   scale_y_discrete(labels = EmbryoGenotypeLabels) + 
-  facet_wrap(~ source, labeller = labeller(data = EmbryoSourceLabels)) + 
+  facet_wrap(~ source, labeller = labeller(source = EmbryoSourceLabels)) + 
   labs(x = "Pseudotime", y = "Genotype") + 
   theme_bw() + 
   theme(aspect.ratio = 1)
