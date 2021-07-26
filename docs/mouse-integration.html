@@ -370,6 +370,12 @@ div.tocify {
     <li>
       <a href="mouse-integration.html">Mouse integration</a>
     </li>
+    <li>
+      <a href="mouse-neighbors.html">Mouse neighbors</a>
+    </li>
+    <li>
+      <a href="mouse-trajectory.html">Mouse trajectory</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -513,16 +519,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtree2822b491911a1625687f837d8d27d5829483fd49targetblank2822b49a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jma1991/AL_KDR/tree/2822b491911a1625687f837d8d27d5829483fd49" target="_blank">2822b49</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtree3594b8de41e63fd671effaae02ce3c171d1a147atargetblank3594b8da"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jma1991/AL_KDR/tree/3594b8de41e63fd671effaae02ce3c171d1a147a" target="_blank">3594b8d</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtree2822b491911a1625687f837d8d27d5829483fd49targetblank2822b49a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtree3594b8de41e63fd671effaae02ce3c171d1a147atargetblank3594b8da" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/jma1991/AL_KDR/tree/2822b491911a1625687f837d8d27d5829483fd49" target="_blank">2822b49</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/jma1991/AL_KDR/tree/3594b8de41e63fd671effaae02ce3c171d1a147a" target="_blank">3594b8d</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -541,14 +547,12 @@ Ignored files:
     Ignored:    output/02-reduced-dimensions.rds
     Ignored:    output/03-clustering.rds
     Ignored:    output/04-marker-detection.rds
+    Ignored:    output/mouse-integration.rds
 
 Untracked files:
     Untracked:  _workflowr.R
     Untracked:  analysis/backup/
     Untracked:  analysis/interactive.Rmd
-    Untracked:  analysis/mouse-clustering.Rmd
-    Untracked:  analysis/mouse-dimensions.Rmd
-    Untracked:  analysis/mouse-markers.Rmd
     Untracked:  analysis/mouse-neighbors.Rmd
     Untracked:  analysis/mouse-trajectory.Rmd
     Untracked:  code/Mode.R
@@ -604,6 +608,57 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jma1991/AL_KDR/blob/3594b8de41e63fd671effaae02ce3c171d1a147a/analysis/mouse-integration.Rmd" target="_blank">3594b8d</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-26
+</td>
+<td>
+Build
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jma1991/AL_KDR/blob/1c9c5a6b13de9f9b35268eef57995351dcc7c0cd/analysis/mouse-integration.Rmd" target="_blank">1c9c5a6</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-26
+</td>
+<td>
+Build
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jma1991/AL_KDR/6bce3e64e5b1db1640d756011072790ed7d4d707/docs/mouse-integration.html" target="_blank">6bce3e6</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-26
+</td>
+<td>
+Build
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -692,8 +747,8 @@ source(&quot;code/splitByCol.R&quot;)</code></pre>
 <p>Delete large objects and trigger garbage collection:</p>
 <pre class="r"><code>rm(sce, ref); gc()</code></pre>
 <pre><code>            used   (Mb) gc trigger   (Mb) limit (Mb)  max used   (Mb)
-Ncells   9928501  530.3   16330098  872.2         NA  16330098  872.2
-Vcells 196567184 1499.7  615984932 4699.6      32768 598207507 4564.0</code></pre>
+Ncells   9928755  530.3   16330458  872.2         NA  16330458  872.2
+Vcells 196567939 1499.7  615986798 4699.7      32768 598208109 4564.0</code></pre>
 <div id="feature-intersection" class="section level3">
 <h3>Feature intersection</h3>
 <p>Subset data to common features:</p>
@@ -751,40 +806,34 @@ mnn &lt;- correctExperiments(
   correct.all = TRUE,
   PARAM = FastMnnParam(get.variance = TRUE, merge.order = idx)
 )</code></pre>
-</div>
-<div id="post-processing" class="section level3">
-<h3>Post processing</h3>
 <p>Delete large objects and trigger garbage collection:</p>
 <pre class="r"><code>rm(all); gc()</code></pre>
 <pre><code>            used   (Mb) gc trigger   (Mb) limit (Mb)  max used   (Mb)
-Ncells   9926708  530.2   16330098  872.2         NA  16330098  872.2
-Vcells 192248322 1466.8  615984932 4699.6      32768 615979623 4699.6</code></pre>
-<p>Annotate features with identifier and name:</p>
-<pre class="r"><code>rowData(mnn)$gene_id &lt;- rownames(mnn)
-
-rowData(mnn)$gene_name &lt;- mapIds(EnsDb.Mmusculus.v79, keys = rownames(mnn), column = &quot;GENENAME&quot;, keytype = &quot;GENEID&quot;)</code></pre>
-<p>Create source annotation label:</p>
-<pre class="r"><code>mnn$source &lt;- &quot;Atlas&quot;
-
-mnn$source[mnn$batch == &quot;AL_KDR_HET_C&quot;] &lt;- &quot;Allantois-Het&quot;
-
-mnn$source[mnn$batch == &quot;AL_KDR_HOM_D&quot;] &lt;- &quot;Allantois-Hom&quot;</code></pre>
-<p>Create tissue annotation label:</p>
-<pre class="r"><code>mnn$tissue &lt;- &quot;Atlas&quot;
-
-mnn$tissue[mnn$batch == &quot;AL_KDR_HET_C&quot;] &lt;- &quot;Allantois&quot;
-
-mnn$tissue[mnn$batch == &quot;AL_KDR_HOM_D&quot;] &lt;- &quot;Allantois&quot;</code></pre>
-<p>Create genotype annotation label:</p>
-<pre class="r"><code>mnn$source &lt;- &quot;WT&quot;
-
-mnn$source[mnn$batch == &quot;AL_KDR_HET_C&quot;] &lt;- &quot;Het&quot;
-
-mnn$source[mnn$batch == &quot;AL_KDR_HOM_D&quot;] &lt;- &quot;Hom&quot;</code></pre>
+Ncells   9926956  530.2   16330458  872.2         NA  16330458  872.2
+Vcells 192249077 1466.8  615986798 4699.7      32768 615980359 4699.6</code></pre>
+</div>
+<div id="post-processing" class="section level3">
+<h3>Post processing</h3>
 <p>Store combined variance model:</p>
 <pre class="r"><code>metadata(mnn)$combineVar &lt;- dec</code></pre>
 <p>Store highly variable genes:</p>
 <pre class="r"><code>metadata(mnn)$getTopHVGs &lt;- hvg</code></pre>
+<p>Create feature annotation data:</p>
+<pre class="r"><code>rowData(mnn)$gene_id &lt;- rownames(mnn)
+
+rowData(mnn)$gene_name &lt;- mapIds(EnsDb.Mmusculus.v79, keys = rownames(mnn), column = &quot;GENENAME&quot;, keytype = &quot;GENEID&quot;)</code></pre>
+<p>Create source annotation label:</p>
+<pre class="r"><code>mnn$source &lt;- &quot;atlas&quot;
+
+mnn$source[mnn$batch == &quot;AL_KDR_HET_C&quot;] &lt;- &quot;allantois&quot;
+
+mnn$source[mnn$batch == &quot;AL_KDR_HOM_D&quot;] &lt;- &quot;allantois&quot;</code></pre>
+<p>Create genotype annotation label:</p>
+<pre class="r"><code>mnn$genotype &lt;- &quot;wt&quot;
+
+mnn$genotype[mnn$batch == &quot;AL_KDR_HET_C&quot;] &lt;- &quot;het&quot;
+
+mnn$genotype[mnn$batch == &quot;AL_KDR_HOM_D&quot;] &lt;- &quot;hom&quot;</code></pre>
 </div>
 </div>
 <div id="diagnostics" class="section level2">
@@ -797,7 +846,7 @@ col &lt;- colorRampPalette(RColorBrewer::brewer.pal(n = 5, name = &quot;Reds&quo
 brk &lt;- seq(0, max(var), length.out = 101)
 
 pheatmap(var[, idx], color = col, display_numbers = TRUE, number_format = &quot;%.2f&quot;, cluster_cols = FALSE, cluster_rows = FALSE, angle_col = 0)</code></pre>
-<p><img src="figure/mouse-integration.Rmd/unnamed-chunk-29-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><img src="figure/mouse-integration.Rmd/unnamed-chunk-28-1.png" width="100%" style="display: block; margin: auto;" /></p>
 <p>Cluster on the corrected PCA to obtain a partitioning of the cells:</p>
 <pre class="r"><code>snn &lt;- buildSNNGraph(mnn, type = &quot;jaccard&quot;, use.dimred = &quot;corrected&quot;)
 
@@ -810,7 +859,7 @@ col &lt;- colorRampPalette(RColorBrewer::brewer.pal(n = 5, name = &quot;Blues&qu
 brk &lt;- seq(0, max(tab), length.out = 101)
 
 pheatmap(tab[, idx], color = col, display_numbers = TRUE, number_format = &quot;%d&quot;, cluster_cols = FALSE, cluster_rows = FALSE, angle_col = 0)</code></pre>
-<p><img src="figure/mouse-integration.Rmd/unnamed-chunk-31-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><img src="figure/mouse-integration.Rmd/unnamed-chunk-30-1.png" width="100%" style="display: block; margin: auto;" /></p>
 <p>Perform TSNE on the corrected PCA matrix:</p>
 <pre class="r"><code>set.seed(1100110001)
 
@@ -823,7 +872,7 @@ mnn &lt;- runTSNE(mnn, dimred = &quot;corrected&quot;, perplexity = 120) # same 
   facet_wrap(~ batch) + 
   theme_bw() + 
   theme(aspect.ratio = 1)</code></pre>
-<p><img src="figure/mouse-integration.Rmd/unnamed-chunk-33-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><img src="figure/mouse-integration.Rmd/unnamed-chunk-32-1.png" width="100%" style="display: block; margin: auto;" /></p>
 <p>Perform UMAP on the corrected PCA matrix:</p>
 <pre class="r"><code>set.seed(1100010011)
 
@@ -836,7 +885,7 @@ mnn &lt;- runUMAP(mnn, dimred = &quot;corrected&quot;, n_neighbors = 20, min_dis
   facet_wrap(~ batch) + 
   theme_bw() + 
   theme(aspect.ratio = 1)</code></pre>
-<p><img src="figure/mouse-integration.Rmd/unnamed-chunk-35-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><img src="figure/mouse-integration.Rmd/unnamed-chunk-34-1.png" width="100%" style="display: block; margin: auto;" /></p>
 </div>
 <div id="summary" class="section level2">
 <h2>Summary</h2>
