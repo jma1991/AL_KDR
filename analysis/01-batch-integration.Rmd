@@ -1,0 +1,262 @@
+---
+title: "Batch integration"
+author: "James Ashmore"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Motivation
+
+## Setup
+
+Setup chunk options:
+
+```{r}
+knitr::opts_chunk$set(
+  autodep    = TRUE,
+  cache      = TRUE,
+  cache.path = "cache/01-batch-integration/",
+  dev        = "png",
+  error      = FALSE,
+  message    = FALSE,
+  warning    = FALSE,
+  fig.align = "center",
+  out.width = '100%'
+)
+```
+
+Load Bioconductor packages:
+
+```{r}
+library(batchelor)
+library(EnsDb.Mmusculus.v79)
+library(scater)
+library(scran)
+library(scuttle)
+```
+
+Load CRAN packages:
+
+```{r}
+library(ggforce)
+library(pheatmap)
+```
+
+Source user functions:
+
+```{r}
+source("code/splitByCol.R")
+```
+
+Read experiment objects:
+
+```{r}
+sce <- list(
+  AL_KDR_HET_C = readRDS("data/AL_KDR_HET_C.rds"),
+  AL_KDR_HOM_D = readRDS("data/AL_KDR_HOM_D.rds")
+)
+```
+
+Extract variance statistics:
+
+```{r}
+dec <- list(
+  AL_KDR_HET_C = metadata(sce$AL_KDR_HET_C)$modelGeneVar,
+  AL_KDR_HOM_D = metadata(sce$AL_KDR_HOM_D)$modelGeneVar
+)
+```
+
+## Integration
+
+### Batch subset
+
+Subset experiment data to common features:
+
+```{r}
+ids <- Reduce(intersect, lapply(sce, rownames))
+
+sce <- lapply(sce, function(x) x[ids, ])
+```
+
+Subset variance data to common features:
+
+```{r}
+ids <- Reduce(intersect, lapply(dec, rownames))
+
+dec <- lapply(dec, function(x) x[ids, ])
+```
+
+### Batch normalization
+
+Perform scaling normalization:
+
+```{r}
+sce <- do.call(multiBatchNorm, sce)
+```
+
+### Variance modelling
+
+Combine variance decompositions:
+
+```{r}
+dec <- do.call(combineVar, dec)
+```
+
+### Feature selection
+
+Select genes to ignore for feature selection
+
+```{r}
+ids <- lapply(sce, function(x) rownames(x)[rowData(x)$blacklist])
+
+dec$blacklist <- rownames(dec) %in% Reduce(intersect, ids)
+```
+
+Identify highly variable genes:
+
+```{r}
+hvg <- subset(dec, blacklist == FALSE)
+
+hvg <- getTopHVGs(dec, var.field = "bio", var.threshold = 0, fdr.field = "FDR", fdr.threshold = 0.05)
+```
+
+### Batch integration
+
+Define sequential merge order:
+
+```{r}
+ind <- c("AL_KDR_HET_C", "AL_KDR_HOM_D")
+```
+
+Correct experiments using nearest neighbours:
+
+```{r}
+set.seed(0111110100)
+
+mnn <- correctExperiments(
+  sce,
+  subset.row = hvg,
+  correct.all = TRUE,
+  PARAM = FastMnnParam(merge.order = ind, get.variance = TRUE)
+)
+```
+
+Store combined variance model:
+
+```{r}
+metadata(mnn)$combineVar <- dec
+```
+
+Store highly variable genes:
+
+```{r}
+metadata(mnn)$getTopHVGs <- hvg
+```
+
+## Diagnostics
+
+Check proportion of lost variance:
+
+```{r}
+var <- metadata(mnn)$merge.info$lost.var
+
+col <- colorRampPalette(RColorBrewer::brewer.pal(n = 5, name = "Reds"))(100)
+
+brk <- seq(0, max(var, na.rm = TRUE), length.out = 101)
+
+pheatmap(var, color = col, display_numbers = TRUE, number_format = "%.2f", cluster_cols = FALSE, cluster_rows = FALSE, angle_col = 0)
+```
+
+Cluster on the corrected PCA to obtain a partitioning of the cells:
+
+```{r}
+snn <- buildSNNGraph(mnn, type = "jaccard", use.dimred = "corrected")
+
+com <- igraph::cluster_louvain(snn)
+
+mnn$label <- factor(com$membership)
+```
+
+Tabulate number of cells from multiple batches within each cluster:
+
+```{r}
+tab <- table(Cluster = mnn$label, Batch = mnn$batch)
+
+col <- colorRampPalette(RColorBrewer::brewer.pal(n = 5, name = "Blues"))(100)
+
+brk <- seq(0, max(tab), length.out = 101)
+
+pheatmap(tab, color = col, display_numbers = TRUE, number_format = "%d", cluster_cols = FALSE, cluster_rows = FALSE, angle_col = 0)
+```
+
+Visualize the corrected PCA:
+
+```{r}
+ggcells(mnn, aes(corrected.1, corrected.2, colour = label)) + 
+  geom_point(size = 1) + 
+  scale_colour_brewer(palette = "Set3") + 
+  labs(x = "PCA 1", y = "PCA 2") + 
+  facet_wrap(~ batch) + 
+  theme_no_axes() + 
+  coord_fixed()
+```
+
+Perform TSNE on the corrected PCA matrix:
+
+```{r}
+set.seed(1111100110)
+
+mnn <- runTSNE(mnn, dimred = "corrected")
+```
+
+Visualize the corrected PCA using a TSNE plot:
+
+```{r}
+ggcells(mnn, aes(TSNE.1, TSNE.2, colour = label)) +
+  geom_point(size = 1) + 
+  scale_colour_brewer(palette = "Set3") + 
+  labs(x = "TSNE 1", y = "TSNE 2") +
+  facet_wrap(~ batch) +
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+Perform UMAP on the corrected PCA matrix:
+
+```{r}
+set.seed(1001010111)
+
+mnn <- runUMAP(mnn, dimred = "corrected")
+```
+
+Visualize the corrected PCA using a UMAP plot:
+
+```{r}
+ggcells(mnn, aes(UMAP.1, UMAP.2, colour = label)) +
+  geom_point(size = 1) +
+  scale_colour_brewer(palette = "Set3") + 
+  labs(x = "UMAP 1", y = "UMAP 2") +
+  facet_wrap(~ batch) +
+  theme_no_axes() + 
+  theme(aspect.ratio = 1)
+```
+
+## Summary
+
+### Output
+
+Save experiment object to disk:
+
+```{r}
+saveRDS(mnn, file = "output/01-batch-integration.rds")
+```
+
+### Session
+
+Print session information:
+
+```{r}
+sessionInfo()
+```
