@@ -271,7 +271,7 @@ Identify 2000 most variable genes:
 ```{r}
 dec <- metadata(sce)$combineVar
 
-hvg <- getTopHVGs(dec, n = 100)
+hvg <- getTopHVGs(dec, n = 2000)
 
 idx <- which(rowData(sce)$gene_id %in% hvg)
 ```
@@ -800,6 +800,10 @@ patchwork::wrap_plots(plt, nrow = 3, ncol = 5, guides = "collect") & theme(legen
 Save experiment object with tradeSeq results:
 
 ```{r}
+rownames(sce) <- rowData(sce)$gene_id
+
+colnames(sce) <- NULL
+
 saveRDS(sce, file = "data/mouse-pseudotime.rds")
 ```
 
