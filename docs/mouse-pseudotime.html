@@ -528,16 +528,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtree2a0079297931ed44f65ef2e9d1b7469ac778bdc2targetblank2a00792a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jma1991/AL_KDR/tree/2a0079297931ed44f65ef2e9d1b7469ac778bdc2" target="_blank">2a00792</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtree380814b3eb99cc7ddf7171989ddac92b7676d36ftargetblank380814ba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jma1991/AL_KDR/tree/380814b3eb99cc7ddf7171989ddac92b7676d36f" target="_blank">380814b</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtree2a0079297931ed44f65ef2e9d1b7469ac778bdc2targetblank2a00792a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtree380814b3eb99cc7ddf7171989ddac92b7676d36ftargetblank380814ba" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/jma1991/AL_KDR/tree/2a0079297931ed44f65ef2e9d1b7469ac778bdc2" target="_blank">2a00792</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/jma1991/AL_KDR/tree/380814b3eb99cc7ddf7171989ddac92b7676d36f" target="_blank">380814b</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -552,7 +552,6 @@ Ignored files:
     Ignored:    data/AL_KDR_HOM_D.rds
     Ignored:    data/backup/
     Ignored:    data/blacklist.csv
-    Ignored:    data/mouse-pseudotime.rds
     Ignored:    output/01-batch-integration.rds
     Ignored:    output/02-reduced-dimensions.rds
     Ignored:    output/03-clustering.rds
@@ -564,6 +563,7 @@ Untracked files:
     Untracked:  _workflowr.R
     Untracked:  analysis/backup/
     Untracked:  analysis/interactive.Rmd
+    Untracked:  analysis/mouse-ontology.Rmd
     Untracked:  code/Mode.R
     Untracked:  code/backup/
     Untracked:  code/cleanEmbryoAtlasData.R
@@ -617,6 +617,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jma1991/AL_KDR/blob/380814b3eb99cc7ddf7171989ddac92b7676d36f/analysis/mouse-pseudotime.Rmd" target="_blank">380814b</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+<td>
+Build
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jma1991/AL_KDR/58c5c1fa857c1d06bda6eca554703f152fd6079a/docs/mouse-pseudotime.html" target="_blank">58c5c1f</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+<td>
+Build
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -857,12 +891,12 @@ EmbryoSourceLabels &lt;- c(&quot;atlas&quot; = &quot;Embryo Atlas&quot;, &quot;a
 }</code></pre>
 </div>
 </div>
-<div id="tscan" class="section level2 tabset">
-<h2 class="tabset">TSCAN</h2>
+<div id="tscan" class="section level2">
+<h2>TSCAN</h2>
 <p>Create metadata slot to keep test results:</p>
-<pre class="r"><code>metadata(sce)$testPesudotime &lt;- list(slingPseudotime_1 = NULL, slingPseudotime_2 = NULL)</code></pre>
-<div id="pseudotime-1" class="section level3">
-<h3>Pseudotime 1</h3>
+<pre class="r"><code>metadata(sce)$testPseudotime &lt;- list(slingPseudotime_1 = NULL, slingPseudotime_2 = NULL)</code></pre>
+<div id="lineage-1" class="section level3">
+<h3>Lineage 1</h3>
 <p>Test for differences along pseudotime:</p>
 <pre class="r"><code>de1 &lt;- TSCAN::testPseudotime(sce, pseudotime = sce$slingPseudotime_1, df = 5, block = sce$batch)
 
@@ -870,7 +904,7 @@ de1$ensembl &lt;- rowData(sce)$gene_id
 
 de1$symbol &lt;- rowData(sce)$gene_name
 
-metadata(sce)$testPesudotime$slingPseudotime_1 &lt;- de1</code></pre>
+metadata(sce)$testPseudotime$slingPseudotime_1 &lt;- de1</code></pre>
 <p>Subset by significance and order by effect size:</p>
 <pre class="r"><code>de1 &lt;- subset(de1, FDR &lt; 0.05)
 
@@ -929,8 +963,8 @@ James Ashmore
 </div>
 </div>
 </div>
-<div id="pseudotime-2" class="section level3">
-<h3>Pseudotime 2</h3>
+<div id="lineage-2" class="section level3">
+<h3>Lineage 2</h3>
 <p>Test for differences along pseudotime:</p>
 <pre class="r"><code>de2 &lt;- TSCAN::testPseudotime(sce, pseudotime = sce$slingPseudotime_2, df = 3, block = sce$batch)
 
@@ -938,7 +972,7 @@ de2$ensembl &lt;- rowData(sce)$gene_id
 
 de2$symbol &lt;- rowData(sce)$gene_name
 
-metadata(sce)$testPesudotime$slingPseudotime_2 &lt;- de2</code></pre>
+metadata(sce)$testPseudotime$slingPseudotime_2 &lt;- de2</code></pre>
 <p>Subset by significance and order by effect size:</p>
 <pre class="r"><code>de2 &lt;- subset(de2, FDR &lt; 0.05)
 
@@ -1073,6 +1107,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/jma1991/AL_KDR/blob/2239023a3f49b84367a65154060c175276da7b71/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-28-1.png" target="_blank">2239023</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/jma1991/AL_KDR/blob/de3e91affd3d97d4121ef2123fffd928aa2f405a/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-28-1.png" target="_blank">de3e91a</a>
 </td>
 <td>
@@ -1111,6 +1156,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/jma1991/AL_KDR/blob/2239023a3f49b84367a65154060c175276da7b71/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-29-1.png" target="_blank">2239023</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/jma1991/AL_KDR/blob/de3e91affd3d97d4121ef2123fffd928aa2f405a/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-29-1.png" target="_blank">de3e91a</a>
@@ -1180,6 +1236,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/jma1991/AL_KDR/blob/2239023a3f49b84367a65154060c175276da7b71/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-34-1.png" target="_blank">2239023</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/jma1991/AL_KDR/blob/de3e91affd3d97d4121ef2123fffd928aa2f405a/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-34-1.png" target="_blank">de3e91a</a>
 </td>
 <td>
@@ -1218,6 +1285,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/jma1991/AL_KDR/blob/2239023a3f49b84367a65154060c175276da7b71/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-35-1.png" target="_blank">2239023</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/jma1991/AL_KDR/blob/de3e91affd3d97d4121ef2123fffd928aa2f405a/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-35-1.png" target="_blank">de3e91a</a>
@@ -1295,6 +1373,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/jma1991/AL_KDR/blob/2239023a3f49b84367a65154060c175276da7b71/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-38-1.png" target="_blank">2239023</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/jma1991/AL_KDR/blob/de3e91affd3d97d4121ef2123fffd928aa2f405a/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-38-1.png" target="_blank">de3e91a</a>
 </td>
 <td>
@@ -1349,6 +1438,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/jma1991/AL_KDR/blob/2239023a3f49b84367a65154060c175276da7b71/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-39-1.png" target="_blank">2239023</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/jma1991/AL_KDR/blob/de3e91affd3d97d4121ef2123fffd928aa2f405a/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-39-1.png" target="_blank">de3e91a</a>
@@ -1407,6 +1507,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/jma1991/AL_KDR/blob/2239023a3f49b84367a65154060c175276da7b71/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-40-1.png" target="_blank">2239023</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/jma1991/AL_KDR/blob/de3e91affd3d97d4121ef2123fffd928aa2f405a/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-40-1.png" target="_blank">de3e91a</a>
 </td>
 <td>
@@ -1463,6 +1574,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/jma1991/AL_KDR/blob/2239023a3f49b84367a65154060c175276da7b71/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-41-1.png" target="_blank">2239023</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/jma1991/AL_KDR/blob/de3e91affd3d97d4121ef2123fffd928aa2f405a/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-41-1.png" target="_blank">de3e91a</a>
 </td>
 <td>
@@ -1517,6 +1639,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/jma1991/AL_KDR/blob/2239023a3f49b84367a65154060c175276da7b71/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-42-1.png" target="_blank">2239023</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/jma1991/AL_KDR/blob/de3e91affd3d97d4121ef2123fffd928aa2f405a/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-42-1.png" target="_blank">de3e91a</a>
@@ -1594,6 +1727,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/jma1991/AL_KDR/blob/2239023a3f49b84367a65154060c175276da7b71/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-45-1.png" target="_blank">2239023</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/jma1991/AL_KDR/blob/de3e91affd3d97d4121ef2123fffd928aa2f405a/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-45-1.png" target="_blank">de3e91a</a>
 </td>
 <td>
@@ -1648,6 +1792,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/jma1991/AL_KDR/blob/2239023a3f49b84367a65154060c175276da7b71/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-46-1.png" target="_blank">2239023</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/jma1991/AL_KDR/blob/de3e91affd3d97d4121ef2123fffd928aa2f405a/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-46-1.png" target="_blank">de3e91a</a>
@@ -1706,6 +1861,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/jma1991/AL_KDR/blob/2239023a3f49b84367a65154060c175276da7b71/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-47-1.png" target="_blank">2239023</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/jma1991/AL_KDR/blob/de3e91affd3d97d4121ef2123fffd928aa2f405a/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-47-1.png" target="_blank">de3e91a</a>
 </td>
 <td>
@@ -1762,6 +1928,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/jma1991/AL_KDR/blob/2239023a3f49b84367a65154060c175276da7b71/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-48-1.png" target="_blank">2239023</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/jma1991/AL_KDR/blob/de3e91affd3d97d4121ef2123fffd928aa2f405a/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-48-1.png" target="_blank">de3e91a</a>
 </td>
 <td>
@@ -1816,6 +1993,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/jma1991/AL_KDR/blob/2239023a3f49b84367a65154060c175276da7b71/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-49-1.png" target="_blank">2239023</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/jma1991/AL_KDR/blob/de3e91affd3d97d4121ef2123fffd928aa2f405a/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-49-1.png" target="_blank">de3e91a</a>
@@ -1933,6 +2121,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/jma1991/AL_KDR/blob/2239023a3f49b84367a65154060c175276da7b71/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-53-1.png" target="_blank">2239023</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/jma1991/AL_KDR/blob/de3e91affd3d97d4121ef2123fffd928aa2f405a/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-53-1.png" target="_blank">de3e91a</a>
 </td>
 <td>
@@ -1987,6 +2186,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/jma1991/AL_KDR/blob/2239023a3f49b84367a65154060c175276da7b71/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-54-1.png" target="_blank">2239023</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/jma1991/AL_KDR/blob/de3e91affd3d97d4121ef2123fffd928aa2f405a/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-54-1.png" target="_blank">de3e91a</a>
@@ -2045,6 +2255,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/jma1991/AL_KDR/blob/2239023a3f49b84367a65154060c175276da7b71/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-55-1.png" target="_blank">2239023</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/jma1991/AL_KDR/blob/de3e91affd3d97d4121ef2123fffd928aa2f405a/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-55-1.png" target="_blank">de3e91a</a>
 </td>
 <td>
@@ -2099,6 +2320,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/jma1991/AL_KDR/blob/2239023a3f49b84367a65154060c175276da7b71/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-56-1.png" target="_blank">2239023</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/jma1991/AL_KDR/blob/de3e91affd3d97d4121ef2123fffd928aa2f405a/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-56-1.png" target="_blank">de3e91a</a>
@@ -2157,6 +2389,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/jma1991/AL_KDR/blob/2239023a3f49b84367a65154060c175276da7b71/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-57-1.png" target="_blank">2239023</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/jma1991/AL_KDR/blob/de3e91affd3d97d4121ef2123fffd928aa2f405a/docs/figure/mouse-pseudotime.Rmd/unnamed-chunk-57-1.png" target="_blank">de3e91a</a>
 </td>
 <td>
@@ -2179,7 +2422,7 @@ James Ashmore
 
 colnames(sce) &lt;- NULL
 
-saveRDS(sce, file = &quot;data/mouse-pseudotime.rds&quot;)</code></pre>
+saveRDS(sce, file = &quot;output/mouse-pseudotime.rds&quot;)</code></pre>
 <p>Print session information:</p>
 <pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>R version 4.0.2 (2020-06-22)
