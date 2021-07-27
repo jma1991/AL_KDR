@@ -160,15 +160,15 @@ plotHeatmap <- function(object, features, columns, order_columns_by) {
 }
 ```
 
-## TSCAN {.tabset}
+## TSCAN
 
 Create metadata slot to keep test results:
 
 ```{r}
-metadata(sce)$testPesudotime <- list(slingPseudotime_1 = NULL, slingPseudotime_2 = NULL)
+metadata(sce)$testPseudotime <- list(slingPseudotime_1 = NULL, slingPseudotime_2 = NULL)
 ```
 
-### Pseudotime 1
+### Lineage 1
 
 Test for differences along pseudotime:
 
@@ -179,7 +179,7 @@ de1$ensembl <- rowData(sce)$gene_id
 
 de1$symbol <- rowData(sce)$gene_name
 
-metadata(sce)$testPesudotime$slingPseudotime_1 <- de1
+metadata(sce)$testPseudotime$slingPseudotime_1 <- de1
 ```
 
 Subset by significance and order by effect size:
@@ -211,7 +211,7 @@ plotHeatmap(
 )
 ```
 
-### Pseudotime 2
+### Lineage 2
 
 Test for differences along pseudotime:
 
@@ -222,7 +222,7 @@ de2$ensembl <- rowData(sce)$gene_id
 
 de2$symbol <- rowData(sce)$gene_name
 
-metadata(sce)$testPesudotime$slingPseudotime_2 <- de2
+metadata(sce)$testPseudotime$slingPseudotime_2 <- de2
 ```
 
 Subset by significance and order by effect size:
@@ -804,7 +804,7 @@ rownames(sce) <- rowData(sce)$gene_id
 
 colnames(sce) <- NULL
 
-saveRDS(sce, file = "data/mouse-pseudotime.rds")
+saveRDS(sce, file = "output/mouse-pseudotime.rds")
 ```
 
 Print session information:
