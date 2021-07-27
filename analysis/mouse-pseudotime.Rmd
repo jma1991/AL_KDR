@@ -87,7 +87,7 @@ plotHeatmap <- function(object, features, columns, order_columns_by) {
   
   obj <- object[features, columns]
 
-  colnames(obj) <- seq_len(ncol(sce))
+  colnames(obj) <- seq_len(ncol(obj))
 
   mat <- t(scale(t(assay(obj, "reconstructed"))))
 
