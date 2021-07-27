@@ -486,7 +486,7 @@ plt <- lapply(ids, function(gene) {
 
   dat$expression <- assay(sce, "reconstructed")[gene, dat$cell]
 
-  ggplot(dat, aes(pseudotime, expression, group = lineage, colour = cluster)) +
+  ggplot(dat, aes(pseudotime, expression, group = lineage, colour = slingClusters)) +
     geom_point() +
     scale_colour_manual(values = EmbryoClusterColours) +
     geom_smooth(colour = "black", method = "loess") +
@@ -620,7 +620,7 @@ plt <- lapply(ids, function(gene) {
 
   dat$expression <- assay(sce, "reconstructed")[gene, dat$cell]
 
-  ggplot(dat, aes(pseudotime, expression, group = lineage, colour = cluster)) +
+  ggplot(dat, aes(pseudotime, expression, group = lineage, colour = slingClusters)) +
     geom_point() +
     scale_colour_manual(values = EmbryoClusterColours) +
     geom_smooth(colour = "black", method = "loess") +
@@ -760,7 +760,7 @@ plt <- lapply(ids, function(gene) {
 
   dat$expression <- assay(sce, "reconstructed")[gene, dat$cell]
 
-  ggplot(dat, aes(pseudotime, expression, group = lineage, colour = cluster)) +
+  ggplot(dat, aes(pseudotime, expression, group = lineage, colour = slingClusters)) +
     geom_point() +
     scale_colour_manual(values = EmbryoClusterColours) +
     geom_smooth(colour = "black", method = "loess") +
