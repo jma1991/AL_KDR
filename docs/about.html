@@ -282,18 +282,7 @@ $(document).ready(function () {
     </li>
   </ul>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Analysis
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="lineage-markers.html">Lineage markers</a>
-    </li>
-  </ul>
-</li>
+<li class="dropdown-header">Analysis</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Mouse Atlas
@@ -305,10 +294,22 @@ $(document).ready(function () {
       <a href="mouse-integration.html">Mouse integration</a>
     </li>
     <li>
-      <a href="mouse-neighbors.html">Mouse neighbors</a>
+      <a href="mouse-trajectory.html">Mouse trajectory (Endothelium)</a>
     </li>
     <li>
-      <a href="mouse-similarity.html">Mouse similarity</a>
+      <a href="mouse-pseudotime.html">Mouse pseudotime (Endothelium)</a>
+    </li>
+    <li>
+      <a href="mouse-ontology.html">Mouse ontology (Endothelium)</a>
+    </li>
+    <li>
+      <a href="mouse-trajectory.html">Mouse trajectory (Cardiac)</a>
+    </li>
+    <li>
+      <a href="mouse-pseudotime.html">Mouse pseudotime (Cardiac)</a>
+    </li>
+    <li>
+      <a href="mouse-ontology.html">Mouse ontology (Cardiac)</a>
     </li>
   </ul>
 </li>
@@ -360,7 +361,7 @@ $(document).ready(function () {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-07-26
+<strong>Last updated:</strong> 2021-07-27
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -391,16 +392,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtree740fc3f558c15e0fde968876b8988161fd2b1661targetblank740fc3fa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jma1991/AL_KDR/tree/740fc3f558c15e0fde968876b8988161fd2b1661" target="_blank">740fc3f</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtreeafe1ed4a0d63841e8dfec95bab0cb1afc3b35683targetblankafe1ed4a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jma1991/AL_KDR/tree/afe1ed4a0d63841e8dfec95bab0cb1afc3b35683" target="_blank">afe1ed4</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtree740fc3f558c15e0fde968876b8988161fd2b1661targetblank740fc3fa" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtreeafe1ed4a0d63841e8dfec95bab0cb1afc3b35683targetblankafe1ed4a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/jma1991/AL_KDR/tree/740fc3f558c15e0fde968876b8988161fd2b1661" target="_blank">740fc3f</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/jma1991/AL_KDR/tree/afe1ed4a0d63841e8dfec95bab0cb1afc3b35683" target="_blank">afe1ed4</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -414,18 +415,25 @@ Ignored files:
     Ignored:    data/AL_KDR_HET_C.rds
     Ignored:    data/AL_KDR_HOM_D.rds
     Ignored:    data/backup/
+    Ignored:    data/blacklist.csv
     Ignored:    output/01-batch-integration.rds
+    Ignored:    output/02-reduced-dimensions.rds
+    Ignored:    output/03-clustering.rds
+    Ignored:    output/04-marker-detection.rds
+    Ignored:    output/mouse-integration.rds
 
 Untracked files:
     Untracked:  _workflowr.R
     Untracked:  analysis/backup/
     Untracked:  analysis/interactive.Rmd
     Untracked:  code/Mode.R
+    Untracked:  code/backup/
     Untracked:  code/cleanEmbryoAtlasData.R
     Untracked:  code/cleanSCE.R
     Untracked:  code/dist_clusters_diag.R
-    Untracked:  code/plotHeatmapPseudotime.R
     Untracked:  code/splitByCol.R
+    Untracked:  code/subsetPointsByGrid.R
+    Untracked:  code/weightedKNN.R
     Untracked:  renv.lock
     Untracked:  renv/
 
@@ -433,6 +441,11 @@ Unstaged changes:
     Modified:   .gitignore
     Modified:   _workflowr.yml
     Modified:   analysis/_site.yml
+    Deleted:    analysis/mouse-ontology.Rmd
+    Deleted:    analysis/mouse-pseudotime-supp.Rmd
+    Deleted:    analysis/mouse-pseudotime.Rmd
+    Deleted:    analysis/mouse-trajectory-supp.Rmd
+    Deleted:    analysis/mouse-trajectory.Rmd
 
 </code></pre>
 <p>
@@ -471,6 +484,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jma1991/AL_KDR/294d544f39008bbea5fd48113aa6b25cf905c3d1/docs/about.html" target="_blank">294d544</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-26
+</td>
+<td>
+Build
+</td>
+</tr>
 <tr>
 <td>
 html
