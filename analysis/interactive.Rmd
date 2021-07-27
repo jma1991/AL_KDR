@@ -1,0 +1,172 @@
+---
+title: "Interactive data exploration"
+author: "James Ashmore"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Setup
+
+Set chunk options:
+
+```{r}
+knitr::opts_chunk$set(eval = TRUE)
+```
+
+Load CRAN packages:
+
+```{r}
+library(rsconnect)
+```
+
+Include Bioconductor package repositories:
+
+```{r}
+options(repos = BiocManager::repositories())
+```
+
+Automatically answer yes to any user prompt:
+
+```{r}
+options(needs.promptUser = FALSE)
+```
+
+Delete existing shiny directory:
+
+```{r}
+unlink("shiny", recursive = TRUE)
+```
+
+Create shiny directory for interactive data exploration:
+
+```{r}
+dir.create("shiny", showWarnings = FALSE, mode = "0755")
+```
+
+## Applications {.tabset}
+
+### Sample data
+
+Create iSEE directory for sample integrated data:
+
+```{r}
+dir.create("shiny/sample", showWarnings = FALSE, mode = "0755")
+```
+
+Copy sample data to iSEE directory:
+
+```{r}
+file.copy("output/04-marker-detection.rds", "shiny/sample/data.rds", overwrite = TRUE)
+```
+
+Write code to iSEE application file:
+
+```{cat, engine.opts = list(file = "shiny/sample/app.R"), class.source = "r"}
+# Load required packages
+library(iSEE)
+library(SingleCellExperiment)
+library(BiocSingular)
+
+# Load experiment object
+sce <- readRDS("data.rds")
+
+# Make feature names unique
+rownames(sce) <- scuttle::uniquifyFeatureNames(rowData(sce)$gene_id, rowData(sce)$gene_name)
+
+# Define column data variables
+sce$EGFP <- counts(sce)["EGFP", ] > 0
+sce$Etv2 <- counts(sce)["Etv2", ] > 0
+sce$Kdr <- counts(sce)["Kdr", ] > 0
+sce$EGFP_AND_Etv2 <- sce$EGFP & sce$Kdr
+sce$Etv2_AND_Kdr <- sce$Etv2 & sce$Kdr
+
+# Define column data colours
+celltype_colours <- function(n) {
+  c(
+    "Allantois" = "#532C8A",
+    "Anterior Primitive Streak" = "#C19F70",
+    "Blood progenitors 1" = "#D9DECF",
+    "Blood progenitors 2" = "#C9A997",
+    "Cardiomyocytes" = "#B51D8D",
+    "Caudal epiblast" = "#9E6762",
+    "Caudal Mesoderm" = "#3F84AA",
+    "Caudal neurectoderm" = "#354E23",
+    "Def. endoderm" = "#F397C0",
+    "Endothelium" = "#FF891C",
+    "Epiblast" = "#635547",
+    "Erythroid1" = "#C72228",
+    "Erythroid2" = "#F79083",
+    "Erythroid3" = "#EF4E22",
+    "ExE ectoderm" = "#989898",
+    "ExE endoderm" = "#7F6874",
+    "ExE mesoderm" = "#8870AD",
+    "Forebrain/Midbrain/Hindbrain" = "#647A4F",
+    "Gut" = "#EF5A9D",
+    "Haematoendothelial progenitors" = "#FBBE92",
+    "Intermediate mesoderm" = "#139992",
+    "Mesenchyme" = "#CC7818",
+    "Mixed mesoderm" = "#DFCDE4",
+    "Nascent mesoderm" = "#C594BF",
+    "Neural crest" = "#C3C388",
+    "NMP" = "#8EC792",
+    "Notochord" = "#0F4A9C",
+    "Paraxial mesoderm" = "#8DB5CE",
+    "Parietal endoderm" = "#1A1A1A",
+    "PGC" = "#FACB12",
+    "Pharyngeal mesoderm" = "#C9EBFB",
+    "Primitive Streak" = "#DABE99",
+    "Rostral neurectoderm" = "#65A83E",
+    "Somitic mesoderm" = "#005579",
+    "Spinal cord" = "#CDE088",
+    "Surface ectoderm" = "#F7F79E",
+    "Visceral endoderm" = "#F6BFCB"
+  )
+}
+
+boolean_colours <- function(n) {
+  c("TRUE" = "#E15759", "FALSE" = "#BAB0AC")
+}
+
+# Set iSEE options
+iSEEOptions$set(downsample = TRUE)
+iSEEOptions$set(color.maxlevels = 37)
+
+# Define iSEE colours
+ecm <- ExperimentColorMap(
+  colData = list(
+    celltype = celltype_colours,
+    EGFP = boolean_colours,
+    Etv2 = boolean_colours,
+    Kdr = boolean_colours,
+    EGFP_AND_Etv2 = boolean_colours,
+    Etv2_AND_Kdr = boolean_colours
+  )
+)
+
+# Create iSEE object
+iSEE(sce, appTitle = "HT_KDR", colormap = ecm)
+```
+
+Deploy the iSEE application to the shiny server:
+
+```{r}
+deployApp(appDir = "shiny/sample", appName = "HT_KDR", appTitle = "HT_KDR", launch.browser = FALSE, forceUpdate = TRUE)
+```
+
+Allocate more memory to the iSEE application:
+
+```{r}
+configureApp(appName = "HT_KDR", appDir = "shiny/sample", size = "xxlarge")
+```
+
+## Summary
+
+### Session
+
+Print session information:
+
+```{r}
+sessionInfo()
+```

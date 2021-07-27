@@ -1,17 +1,51 @@
 name: "AL_KDR"
-output_dir: ../docs
+output_dir: "../docs"
 navbar:
   title: "AL_KDR"
   left:
-  - text: Home
-    href: index.html
-  - text: About
-    href: about.html
-  - text: License
-    href: license.html
+    - text: "Home"
+      href: index.html
+    - text: "About"
+      href: about.html
+    - text: "Processing"
+      menu:
+        - text: "Batch integration"
+          href: 01-batch-integration.html
+        - text: "Dimensionality reduction"
+          href: 02-reduced-dimensions.html
+        - text: "Clustering"
+          href: 03-clustering.html
+        - text: "Marker detection"
+          href: 04-marker-detection.html
+    - text: "Analysis"
+      menu:
+    - text: "Mouse Atlas"
+      menu:
+        - text: "Mouse integration"
+          href: mouse-integration.html
+        - text: "Mouse trajectory (Endothelium)"
+          href: mouse-trajectory-endothelium.html
+        - text: "Mouse pseudotime (Endothelium)"
+          href: mouse-pseudotime-endothelium.html
+        - text: "Mouse ontology (Endothelium)"
+          href: mouse-ontology-endothelium.html
+        - text: "Mouse trajectory (Cardiomyocytes)"
+          href: mouse-trajectory-cardiomyocytes.html
+        - text: "Mouse pseudotime (Cardiac)"
+          href: mouse-pseudotime-cardiomyocytes.html
+        - text: "Mouse ontology (Cardiac)"
+          href: mouse-ontology-cardiomyocytes.html
+    - text: "Interactive"
+      href: interactive.html
+  right:
+    - text: "License"
+      href: license.html
+    - icon: fab fa-github
+      href: https://github.com/jma1991/AL_KDR
 output:
   workflowr::wflow_html:
-    toc: yes
-    toc_float: yes
+    toc: true
+    toc_float: true
     theme: cosmo
     highlight: textmate
+    df_print: paged
