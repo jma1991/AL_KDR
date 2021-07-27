@@ -520,3 +520,11 @@ plt <- list(
 
 patchwork::wrap_plots(plt, ncol = 1)
 ```
+
+## Summary
+
+Print session information:
+
+```{r}
+sessionInfo()
+```
