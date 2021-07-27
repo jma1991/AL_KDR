@@ -196,7 +196,7 @@ Extract and convert gene identifiers from results table:
 ```{r}
 dat <- metadata(sce)$testPseudotime$slingPseudotime_2
 
-ens <- rowData(sce)$gene_id[match(dat$gene2, rownames(sce))]
+ens <- dat$ensembl
 
 ids <- mapIds(org.Mm.eg.db, keys = ens, column = "ENTREZID", keytype = "ENSEMBL")
 ```
