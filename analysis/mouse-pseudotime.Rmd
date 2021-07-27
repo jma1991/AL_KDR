@@ -179,15 +179,11 @@ de1$ensembl <- rowData(sce)$gene_id
 
 de1$symbol <- rowData(sce)$gene_name
 
-metadata(sce)$testPseudotime$slingPseudotime_1 <- de1
-```
-
-Subset by significance and order by effect size:
-
-```{r}
 de1 <- subset(de1, FDR < 0.05)
 
 de1 <- de1[order(abs(de1$logFC), decreasing = TRUE), ]
+
+metadata(sce)$testPseudotime$slingPseudotime_1 <- de1
 ```
 
 Display table of significant genes:
@@ -222,15 +218,11 @@ de2$ensembl <- rowData(sce)$gene_id
 
 de2$symbol <- rowData(sce)$gene_name
 
-metadata(sce)$testPseudotime$slingPseudotime_2 <- de2
-```
-
-Subset by significance and order by effect size:
-
-```{r}
 de2 <- subset(de2, FDR < 0.05)
 
 de2 <- de2[order(abs(de2$logFC), decreasing = TRUE), ]
+
+metadata(sce)$testPseudotime$slingPseudotime_2 <- de2
 ```
 
 Display table of significant genes:
