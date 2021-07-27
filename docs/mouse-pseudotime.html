@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="James Ashmore" />
+
+<meta name="date" content="2020-04-21" />
+
+<title>Mouse pseudotime</title>
+
+<script src="site_libs/header-attrs-2.9/header-attrs.js"></script>
+<script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+<script src="site_libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="site_libs/datatables-binding-0.18/datatables.js"></script>
+<link href="site_libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="site_libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="site_libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
+<link href="site_libs/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.1.1/js/crosstalk.min.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">AL_KDR</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Processing
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="01-batch-integration.html">Batch integration</a>
+    </li>
+    <li>
+      <a href="02-reduced-dimensions.html">Dimensionality reduction</a>
+    </li>
+    <li>
+      <a href="03-clustering.html">Clustering</a>
+    </li>
+    <li>
+      <a href="04-marker-detection.html">Marker detection</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown-header">Analysis</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Mouse Atlas
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="mouse-integration.html">Mouse integration</a>
+    </li>
+    <li>
+      <a href="mouse-neighbors.html">Mouse neighbors</a>
+    </li>
+    <li>
+      <a href="mouse-trajectory.html">Mouse trajectory</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="interactive.html">Interactive</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="license.html">License</a>
+</li>
+<li>
+  <a href="https://github.com/jma1991/AL_KDR">
+    <span class="fab fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Mouse pseudotime</h1>
+<h4 class="author">James Ashmore</h4>
+<h4 class="date">2020-04-21</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2021-07-27
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>AL_KDR/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20200510code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20200510)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20200510code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20200510)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtreeb9709f809c9a79087f189d960f849a709299f591targetblankb9709f8a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jma1991/AL_KDR/tree/b9709f809c9a79087f189d960f849a709299f591" target="_blank">b9709f8</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtreeb9709f809c9a79087f189d960f849a709299f591targetblankb9709f8a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/jma1991/AL_KDR/tree/b9709f809c9a79087f189d960f849a709299f591" target="_blank">b9709f8</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    analysis/cache/
+    Ignored:    data/AL_KDR_HET_C.rds
+    Ignored:    data/AL_KDR_HOM_D.rds
+    Ignored:    data/backup/
+    Ignored:    data/blacklist.csv
+    Ignored:    output/01-batch-integration.rds
+    Ignored:    output/02-reduced-dimensions.rds
+    Ignored:    output/03-clustering.rds
+    Ignored:    output/04-marker-detection.rds
+    Ignored:    output/mouse-integration.rds
+    Ignored:    output/mouse-trajectory.rds
+
+Untracked files:
+    Untracked:  _workflowr.R
+    Untracked:  analysis/backup/
+    Untracked:  analysis/interactive.Rmd
+    Untracked:  code/Mode.R
+    Untracked:  code/backup/
+    Untracked:  code/cleanEmbryoAtlasData.R
+    Untracked:  code/cleanSCE.R
+    Untracked:  code/dist_clusters_diag.R
+    Untracked:  code/splitByCol.R
+    Untracked:  code/subsetPointsByGrid.R
+    Untracked:  code/weightedKNN.R
+    Untracked:  renv.lock
+    Untracked:  renv/
+
+Unstaged changes:
+    Modified:   .gitignore
+    Modified:   _workflowr.yml
+    Modified:   analysis/_site.yml
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/mouse-pseudotime.Rmd</code>) and HTML (<code>docs/mouse-pseudotime.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jma1991/AL_KDR/blob/b9709f809c9a79087f189d960f849a709299f591/analysis/mouse-pseudotime.Rmd" target="_blank">b9709f8</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+<td>
+Build
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jma1991/AL_KDR/blob/0e8a39e5a89e1df778c884759a0dbc3a2b4b71d8/analysis/mouse-pseudotime.Rmd" target="_blank">0e8a39e</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+<td>
+Build
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="setup" class="section level2">
+<h2>Setup</h2>
+<p>Set chunk options:</p>
+<pre class="r"><code>knitr::opts_chunk$set(
+  autodep    = TRUE,
+  cache      = TRUE,
+  cache.path = &quot;cache/mouse-pseudotime.Rmd/&quot;,
+  dev        = &quot;png&quot;,
+  error      = FALSE,
+  message    = FALSE,
+  warning    = FALSE
+)</code></pre>
+<p>Load Bioconductor packages:</p>
+<pre class="r"><code>library(MouseGastrulationData)
+library(TSCAN)
+library(scater)
+library(scran)
+library(scuttle)
+library(slingshot)
+library(tradeSeq)</code></pre>
+<p>Load CRAN packages:</p>
+<pre class="r"><code>library(RColorBrewer)
+library(pheatmap)</code></pre>
+<p>Read experiment object:</p>
+<pre class="r"><code>sce &lt;- readRDS(&quot;output/mouse-trajectory.rds&quot;)</code></pre>
+<p>Make feature names unique:</p>
+<pre class="r"><code>rownames(sce) &lt;- uniquifyFeatureNames(rowData(sce)$gene_id, rowData(sce)$gene_name)</code></pre>
+<p>Convert slingshot clusters to a factor:</p>
+<pre class="r"><code>sce$slingClusters &lt;- as.factor(sce$slingClusters)</code></pre>
+<p>Define colour palettes:</p>
+<pre class="r"><code>EmbryoCelltypeColours &lt;- MouseGastrulationData::EmbryoCelltypeColours
+
+EmbryoGenotypeColours &lt;- c(&quot;wt&quot; = &quot;#76B7B2&quot;, &quot;het&quot; = &quot;#B07AA1&quot;, &quot;hom&quot; = &quot;#EDC948&quot;)
+
+EmbryoSourceColours &lt;- c(&quot;atlas&quot; = &quot;#BAB0AC&quot;, &quot;allantois&quot; = &quot;#E15759&quot;)
+
+EmbryoClusterColours &lt;- setNames(brewer.pal(nlevels(sce$slingClusters), name = &quot;Set3&quot;), levels(sce$slingClusters))</code></pre>
+<p>Define informative labels:</p>
+<pre class="r"><code>EmbryoGenotypeLabels &lt;- c(&quot;wt&quot; = &quot;Flk1 (WT)&quot;, &quot;het&quot; = &quot;Flk1 (Het)&quot;, &quot;hom&quot; = &quot;Flk1 (Hom)&quot;)
+
+EmbryoSourceLabels &lt;- c(&quot;atlas&quot; = &quot;Embryo Atlas&quot;, &quot;allantois&quot; = &quot;Embryo Allantois&quot;)</code></pre>
+<p>Define function to plot heatmap of gene expression values:</p>
+<pre class="r"><code>plotHeatmap &lt;- function(object, features, columns, order_columns_by) {
+  
+  obj &lt;- object[features, columns]
+
+  colnames(obj) &lt;- seq_len(ncol(obj))
+
+  mat &lt;- t(scale(t(assay(obj, &quot;reconstructed&quot;))))
+
+  mat &lt;- mat[, order(obj[[order_columns_by]])]
+
+  col &lt;- colorRampPalette(rev(brewer.pal(5, name = &quot;RdBu&quot;)))(100)
+
+  lim &lt;- max(abs(mat))
+  
+  brk &lt;- seq(-3, 3, length.out = 101)
+  
+  ann &lt;- list(
+    
+    col = data.frame(
+      Celltype  = obj$celltype,
+      Genotype  = obj$genotype,
+      Source    = obj$source,
+      Cluster   = obj$slingClusters,
+      row.names = colnames(obj)
+    ),
+    
+    colors = list(
+      Celltype = EmbryoCelltypeColours[unique(obj$celltype)],
+      Genotype = EmbryoGenotypeColours[unique(obj$genotype)],
+      Source   = EmbryoSourceColours[unique(obj$source)],
+      Cluster  = EmbryoClusterColours[unique(obj$slingClusters)]
+    )
+  )
+
+  plt &lt;- pheatmap(
+    mat = mat,
+    color = col, 
+    breaks = brk,
+    scale = &quot;none&quot;,
+    cluster_cols = FALSE,
+    annotation_col = ann$col,
+    annotation_colors = ann$colors,
+    show_colnames = FALSE
+  )
+  
+  return(plt)
+
+}</code></pre>
+</div>
+<div id="tscan" class="section level2 tabset">
+<h2 class="tabset">TSCAN</h2>
+<p>Create metadata slot to keep test results:</p>
+<pre class="r"><code>metadata(sce)$testPesudotime &lt;- list(slingPseudotime_1 = NULL, slingPseudotime_2 = NULL)</code></pre>
+<div id="pseudotime-1" class="section level3">
+<h3>Pseudotime 1</h3>
+<p>Test for differences along pseudotime:</p>
+<pre class="r"><code>de1 &lt;- TSCAN::testPseudotime(sce, pseudotime = sce$slingPseudotime_1, df = 5, block = sce$batch)
+
+metadata(sce)$testPesudotime$slingPseudotime_1 &lt;- de1</code></pre>
+<p>Subset by significance and order by effect size:</p>
+<pre class="r"><code>de1 &lt;- subset(de1, FDR &lt; 0.05)
+
+de1 &lt;- de1[order(abs(de1$logFC), decreasing = TRUE), ]</code></pre>
+<p>Display table of significant genes:</p>
+<pre class="r"><code>DT::datatable(
+  data = as.data.frame(de1[, c(&quot;logFC&quot;, &quot;p.value&quot;, &quot;FDR&quot;)]), 
+  colnames = c(&quot;FC&quot;, &quot;P&quot;, &quot;FDR&quot;)
+)</code></pre>
+<div id="htmlwidget-33cfbf923126e5ed71dd" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-33cfbf923126e5ed71dd">{"x":{"filter":"none","data":[["Acta2","Lgals1","Tuba1a","Cnn2","Map1b","Maged2","Cdkn1c","Sparc","Anxa2","Krt8","Car4","Ccnd2","Tmsb10","Krt18","Ppic","Anxa5","Ifitm1","Actc1","Pcolce","Twist2","Col1a2","Gpx3","Ilk","S100a10","Col1a1","Pmp22","Plac1","Wnt2","Srm","Clic1","Ncl","Pdlim7","Asb4","Vim","Slc2a1","Rhoc","Itm2a","Tax1bp3","Bambi","Efnb1","Vcam1","Cyr61","Tubb6","Csrp2","Perp","Actg1","Pea15a","Anxa6","Serpinh1","Dkc1","Ddt","Reep5","Nop56","Crabp1","Pgm2","Lyar","Ndn","Nsun2","Nnat","Rcn3","Tpm4","Wdr12","Sssca1","Jun","Dnpep","Tspan9","Mgarp","Arpc5","Nip7","Gabarap","Gpx4","Rsl1d1","Cnbp","Ppan","Fhl2","Mmp14","C1qbp","Marcks","Ccnd1","Rrp9","Crip2","Cst3","Nop58","Cyb5a","Efemp2","Ccnd3","Peg3","Isl1","Nop10","Wdr1","Myl6","Mob3a","Psat1","Grwd1","Chchd4","Dstn","Tmsb4x","Nhp2l1","Ifitm2","Nhp2","Sall4","Sfxn1","Rrs1","Cdx4","Nifk","Cd24a","Cd63","Rgs5","Ppid","Cdca7","Ngfrap1","Myl9","Gm16286","Car14","Abracl","Actb","Gsta4","Rhox5","Nmd3","Cdv3","Igf2","Rrp1b","Hk2","Ctnna1","Sgce","Fam136a","Bzw2","Timm8a1","Rrbp1","Calm2","Tmod1","Rcl1","Vcan","Gtpbp4","Csrp1","Wbp5","Eif1a","Dctpp1","Gfpt2","Mtap","Snai2","Tpm2","Shmt1","Sh3bgr","Tomm20","Rbbp7","Cacybp","Mrpl12","Etv2","Speg","Tbrg1","Ccdc80","Tsc22d1","Mrto4","Apex1","Atad3a","Tubb2a","Pa2g4","Tomm5","Akr1b3","Ftl1","Ebna1bp2","Smim1","Pno1","Prmt2","Phlda2","Pcgf5","H13","Akr1a1","Kdr","Mest","Myadm","Wdr43","Nolc1","Slc25a5","Plp2","Rangrf","Nop2","Nxf7","Tagln2","Triobp","Npc2","Rsu1","Akr1b8","Ackr3","Laptm4b","Uchl5","Ssbp1","Fos","Tmem98","1110008F13Rik","Utp18","Apoe","Eif4e","Arhgap1","Ngfr","Egr1","Ndufaf4","Nudt19","H19","Npm1","Gsto1","Psap","Ctps","Arf5","Churc1","Flot2","Nrk","Gar1","B230312C02Rik","Eno1","Ddx18","Idh3a","Mak16","Shmt2","Ddah2","Ltv1","Shisa4","D2Wsu81e","Hspd1","Ruvbl2","6330403K07Rik","Rpf2","Prmt5","Llph","Phf5a","Add1","Ubc","Pfdn2","Set","Get4","Kalrn","Gnl3","Cd151","Rsl24d1","Noc2l","Gpatch4","Rrp15","Glipr2","Calm1","Wnk3","Fam60a","Eif2s2","Leprel4","Eif2s1","Dars","Gbas","Mtx2","Ephb2","Malat1","Glrx5","Myrf","Dpysl2","Eif4ebp1","Emc6","Cirh1a","Eif3g","Pin1","Akap12","Myl12a","Fkbp10","Id2","Amer1","Creb3l1","Serbp1","Uchl3","Ppm1g","Trp53","Vdac1","Cd248","H2-T23","Ftsj3","Slc27a3","Anp32b","Park7","Aard","Prps1","Cited1","Ino80e","Gas6","Scarb1","Abcb10","Tcf7l1","Wdr74","Tgfb1i1","Tagln","Bcat1","Emb","Gata5","Cnih4","Gnai2","Mthfd1","Tnni1","Fbl","Dnaja2","Kcns3","Snf8","Asns","Copz2","Hnrnpa1","Mphosph10","Spin2c","Fkbp11","Eif2b3","Mrps18b","Top1","Polr1c","Sri","Cfl1","Idh1","Crlf3","Homer2","Hspe1","Bri3","Txn1","Clpp","Yars2","Aamdc","Cacnb3","Flnb","5330426P16Rik","Mbnl3","Slc38a1","Mllt4","Dgat2","Cdkn2d","Gnas","Ldha","Gm29666","Tbx5","Cygb","Hsd17b12","Amot","Myl12b","Tcf7l2","Popdc2","Camk1","ENSMUSG00000109523","Eif3j2","Hoxaas3","Mtfr1l","E130012A19Rik","Cryab","Trp53i13","Nebl","Dnajc2","Ran","Pfas","Ppil1","Rbmx","Rarres1","Slc22a18","Ddx21","Smim14","Myo1c","Capn2","Pdpn","Emp2","Ppm1m","Eif5a","Strap","Mmp11","Tmem108","Nat10","Farsa","Ptma","Nudcd2","Rcor2","Dnph1","P4ha3","Gm10053","Tbc1d10a","Exosc1","Brix1","Rps13","Trmt10c","Mtss1","Fam195a","Eif4a1","Ptp4a3","Swap70","Ppp2r1a","Pard6b","Ier2","Dhodh","Itga9","Rpl4","Papss1","Aldh3a2","Hmga1","Zcchc10","Tsfm","H2afz","Rbm38","Colec11","Vapa","Acer2","Aatf","Lasp1","Lmna","Cdc42ep3","Rspo3","Rpl30","Spon2","Me1","Tdrd7","Nenf","Utp15","Cystm1","Rpl14","Uap1l1","ENSMUSG00000112129","Rab3il1","Fut8","Atf3","Cox11","Slc25a33","Zcchc24","Dkk3","Aplp1","Sil1","Kcnh2","Slc46a3","Cxcr2","Jag1","Pdp2","Atr","Slc6a6","Mlf2","Acsl6","Evx1","Slc12a4","Thoc5","Reep3","Glipr1","Kctd3","Ccna2","Slc51a","Cmss1","Zfp36","Fas","Sgk3","Rpp38","Nol10","Adck1","Pdcd6ip","Armc8","Coq5","Hapln1","Steap1","Bicd2","Ppp2r5b","Lama1","RP23-77A8.2","Cttnbp2","Sord","Sec24a","Plac9b","Atxn3","Cdx1","Trmu","Tnfsf9","ENSMUSG00000108348","Etv4","Zdhhc8","Zfp513","Dbp","Klf2","Kmt2d","Rbm12","Sco1","Wdr53","Smpdl3b","Cpe","Wdr45","BC002059","Srsf1","Satb2","Itfg2","Timp4","Hexb","Plk3","Arl13b","Ncbp1","Porcn","Rhox4b","Gm15859","Serpinb6b","Cbs","Dak","Elovl2","Col2a1","Zdhhc1","R3hcc1l","Fam46c","ENSMUSG00000110661","Cdkl1","Star","Simc1","Snph","Cfap54","4930550C14Rik","Ankrd9","Fam132b","Herc6","ENSMUSG00000112532","Ankdd1b","Gm26826","Igsf5","Lrrc75b","Fam78a","Runx3","Zfp790","Tmem56","Gm3558","Gm13589","Cacna1c","Arhgef9","Prss12","Kcnmb2","Dbndd2","Bicc1","Gm16279","Rarb","Dnmt3bos","Tox2","Brsk1","4930570N19Rik","Aqp2","Reep1","Fam186b","Zfp169","Sh3rf3","Kcnab1","Creb5","2810407A14Rik","2010308F09Rik","Srrm4","ENSMUSG00000109284","St8sia3","Cplx1","Fbxo15","Rapgefl1","Nlrp12","Fosb","Tdrp","Vps13a","A830018L16Rik","Ppp2r2b","Pnma2","D1Pas1","Nipal3","ENSMUSG00000107319","Cst9","Slc35f1","Ccdc79","Fer1l5","Slc30a2","Nr2e3","Ido1","Ttc38","Kbtbd11","Nlrp10","Adam33","Npw","Fosl1","Utf1","6030445D17Rik","Aqp1","Gm26579","ENSMUSG00000110467","Onecut2","Tmem221","Prr5l","Zfp52","2010110E17Rik","Iqcd","Psmb5","D6Ertd527e","Pax9","Slc3a1","Selplg","Vstm2a","Gm6133","Gm12158","Chst9","Syt2","Vars2","Reep6","Sec14l4","Ldlrad2","Shisa3","Gm29188","Gm16796","PCDHGA9","Ifit2","Cfap57","Tesc","RP23-410B24.2","Gm26667","ENSMUSG00000111171","Gm16277","Mtcp1_ENSMUSG00000031200","Pkd2l1","Slc10a1","Gm10619","Cpeb1","Gm21685","Lrrk2","Lphn3","Myadml2","Mansc4","Mybl1","Rxrg","Gm21975","E130114P18Rik","ENSMUSG00000107353","Erp27","ENSMUSG00000114053","Gm14236","Krt86","Vgll3","Nlk","Slc22a14","Mctp2","Gm11201","Hcn1","Egf","Gm26739","Slc25a45","ENSMUSG00000110737","4933433G15Rik","ENSMUSG00000108977","Scml4","ENSMUSG00000105851","Gm15217","ENSMUSG00000112555","ENSMUSG00000107301","D930020B18Rik","Gm8579","3830432H09Rik","ENSMUSG00000106588","Ube2w","Gdf3","RP24-229G16.1","Gm13184","Snhg7os","ENSMUSG00000108931","2610206C17Rik","Vmn2r90","Mapk10","Gm10399","Pitpnm2os1","Hepacam2","ENSMUSG00000108137","Acsm2","Gm20554","ENSMUSG00000107081","Gm12841","Gata1","Gm14597","Gm17034","Nrg3","Gm27224","Esr2","Il7r","G6pc","Cwh43","ENSMUSG00000107875","C230034O21Rik","ENSMUSG00000110373","Vmn2r25","Gm10532","Gjc3","ENSMUSG00000112859","Gm13387","Dlx1as","Gm14285","4930444E06Rik","4933405D12Rik","Olfr267","Gm5860","Padi6","Gm10475","ENSMUSG00000105912","Fam71e2","9530003J23Rik","Colq","Dclk3","Apof","Vash1","PCDHA9_ENSMUSG00000104148","Prnd","Olfr1330","Acpt","ENSMUSG00000108961","Acsbg1","Gm20468","Sox5os1","Sp8","Asb17","Olfr961","March3","ENSMUSG00000113098","Olfr1033","Olfr1138","Il1rapl1","Gm17067","Gm13982","Gm3194","Vmn1r203"],[15.2526113942942,13.657487336404,12.6815101425341,12.2583156239723,11.4687701467558,11.0955920621099,10.9412421413738,10.4399065821051,9.71387744050756,9.45141846920758,9.35887833612059,-9.22448638536721,8.99687269989732,8.59728727229581,8.28318602469855,8.22459339924877,-8.07350549392186,7.94965590390378,7.54225694561005,7.50577457668209,7.48025003239399,7.3047593011015,7.15332834564609,7.13936690741325,7.13514022329245,7.07701279539238,7.01280089919472,7.01088518106881,-6.92668111212388,6.91111813648494,-6.83204536167466,6.79189400142072,6.78669764061036,6.77517710152791,6.71334205318768,6.71248765959865,6.70840888444128,6.55541990840457,-6.50377103171973,6.45292440281768,6.4500032553816,6.38632974017225,6.35908705608543,6.33396574655687,6.29282548044064,6.2837755000963,6.22531884408221,6.15563815523105,6.12860523302407,-6.05094368147914,5.98256285554766,5.83218423721954,-5.80955145547514,-5.78445391899035,5.73590482921896,-5.72745165387966,5.59813665042807,-5.57115348909454,5.55767332893067,5.53260969571851,5.50084314531342,-5.37155176545073,-5.34302472036631,5.32598087042454,5.31897436474982,5.2953085171568,5.28684177017073,5.28148051410823,-5.28006676809578,5.27361982643789,5.27114690576648,-5.27054944149067,-5.27020558791385,-5.26236326674574,5.23711982864601,5.1965478320962,-5.18821899549344,5.18145497048981,-5.17804106871958,-5.13174709145967,5.13071321936906,5.11738040930283,-5.1170886304554,5.11325307770601,5.10558801669144,5.08492867268185,5.08482767156112,-5.06991976826194,-5.06148329950749,5.04693767954356,5.03422437189456,5.02859683400665,-5.02114827976568,-5.01552962829961,-5.01433802799378,5.00419505407106,4.98492781087417,-4.98347915726637,-4.96535733156271,-4.95221320496019,-4.91863947081129,-4.88532310113463,-4.87071348368689,-4.86558364044691,-4.84017312801757,4.83228642922824,4.82822305053552,4.82001534170906,-4.80363748448794,-4.79630246479226,4.76833623344025,4.75196190005828,-4.7455715379859,-4.74141824653761,4.71524843915182,4.69691367695491,4.68863036353856,4.68036232214388,-4.67378073486227,-4.67074499670908,4.63711752551358,-4.61473260709042,-4.58717705305394,4.54022741475035,4.52742623086327,-4.51936624339649,-4.51410544740053,-4.44619457758031,4.43864187424768,4.42384506544831,4.41567996985201,-4.41452535936031,4.40050206273171,-4.38451900973663,4.38446820302294,4.36964511262419,-4.34515232233601,-4.3448805500898,-4.34448091135982,-4.33933377724643,4.33267336690107,4.3140527976206,-4.30265791435582,4.2771325500311,-4.23795456180665,4.22091202169586,-4.21460382420972,-4.20810838408614,-4.20086418314117,4.18836134150134,4.1765162082244,4.17061480205951,4.16955668963865,-4.16322601277276,-4.13541933607121,-4.13515654415196,4.1158000704798,-4.09377310632718,-4.08902144021736,-4.08672727774764,4.06437996952524,-4.0628990153507,4.06021333315717,-4.05923201012478,4.04814229296668,4.03607334410735,4.03510088913748,4.02979963809184,4.02780106863163,-4.01911351421491,4.01440417297776,4.00027592667827,-3.99659107577438,-3.9808933308597,-3.95705901360594,3.9361365167415,-3.92718913504943,-3.90714489449813,3.90378078520128,-3.90310042249384,3.90021986676723,3.89445719298222,3.88101178937599,3.85686933826805,3.84816293389493,-3.82498951924202,-3.82197482042045,-3.81592955527821,3.80047365817439,3.79450909097337,-3.79035804810832,-3.77401903055311,3.72224758088778,-3.71474385003236,3.71152709437572,-3.71086346948159,3.69646237737504,-3.69629608832719,-3.67945100418963,3.66130744915842,-3.65337970404172,-3.64891325463018,3.62683720885022,-3.62347059180442,3.61542241852246,-3.60477219552548,3.5991654751164,3.59724308688665,-3.56713500511074,-3.56464239987267,-3.55692508424568,-3.55585439267293,-3.5251077456875,-3.50748786836719,-3.497401451205,3.49289039220971,-3.48721444238137,3.47279308714109,-3.46566904766235,-3.46202451360242,-3.45495311755725,3.43953170433569,-3.42503344937523,-3.41291566823828,-3.40764699605241,-3.37932254710287,3.36224306326204,3.36204656944101,-3.33767240517237,-3.33222530716121,3.32384818975918,3.30353196954144,-3.30286380849106,3.29523490153267,-3.29439108931608,-3.28150085926051,-3.27833281599846,-3.27725521921086,3.27659921536615,3.25579644029635,3.22561842160265,-3.2223761008695,-3.21278336426202,3.21246473173484,-3.19033743707163,-3.18903799659817,3.18576948724066,-3.1816619247449,3.16486402489626,3.1599454752287,-3.14907325606903,3.13000157064567,3.11601593253711,3.1106707686239,-3.10393658954819,-3.0862019769174,-3.0740001682192,-3.07272297334482,3.06979992065308,3.0674733638133,3.05093130088824,-3.04743273842892,3.04352872950506,3.040829620401,-3.02504104379255,-3.0184194871332,-3.01045087195551,-3.00415664614429,2.98873679316328,2.98089305412092,-2.96291240955094,-2.95990740919658,2.95918750477133,-2.94383677928205,-2.93961105904426,2.93588234053553,-2.93121773583535,-2.92799765102073,-2.92751994513984,2.91357318973512,2.90854266446895,2.87015528895128,2.86835773053348,-2.85376606016296,2.84469149363557,2.84180497169655,-2.83823647119847,-2.82492750817092,2.814064090067,2.81324906543293,2.81098035453322,-2.78743476645921,2.77892209983988,-2.77379781681548,-2.74972381411856,2.74641995815989,-2.74455438393633,-2.74409247970628,2.73778927770601,-2.72175128555444,-2.70788532895111,-2.70185620051494,-2.68815293924379,-2.67690371225828,-2.67603233777324,-2.67483961639353,-2.67458417135437,2.66983366930949,2.65882537503845,2.65689916040488,-2.64778749346563,2.63208904669157,-2.62922361573474,2.61951489518283,2.609319353466,-2.60161497412305,-2.59779109132614,2.56563764735283,2.56181566075866,2.55883553562636,2.55727021103897,2.55300904396689,-2.54457100878112,-2.54143887188359,-2.50399168980848,2.4978830612842,2.49493786467058,-2.47630286119658,-2.46805542973314,2.42459616417125,2.40166568830998,-2.39922645395839,-2.38940567120801,2.38842538319907,2.38502112414909,2.36129102220867,2.35818292201545,-2.35816050440748,-2.35161766244229,-2.35063201610877,-2.33083673915298,-2.32961308704908,2.3237891808027,2.32289459596136,2.3158480418111,-2.2861762823446,-2.26187532011016,-2.25364707271694,-2.24485344960698,2.23851677898215,2.23258744157126,2.17435982808251,-2.17235152365462,2.16795200276888,2.16214167468459,2.15768457402973,2.15697409635405,2.14869829460825,2.1396582489907,-2.12196949171041,-2.11040664001013,2.10813098986783,2.10304604988359,-2.09672675218704,-2.09125810044999,-2.08116161825265,-2.05657596514989,-2.04626223435207,-2.04521636559736,2.04134346447104,-2.03732328432443,2.02898766996832,-2.00940301061372,-1.97618201814838,-1.95078603912262,-1.94865855834343,1.94807505437457,-1.94502608714521,-1.9410177883651,-1.9406605938145,-1.91026371349914,1.89707956506376,1.89138205864006,1.86342216036637,-1.86179551019949,1.8312157721544,-1.80708916908589,1.785970820296,1.78583706896867,-1.76535195866987,-1.73840243394289,-1.73614710434831,-1.73565088803776,1.7299685690431,1.71700633742515,-1.7057960118811,-1.69985281413674,-1.68285201182002,1.66352553829458,1.66047408718761,1.65220453351647,-1.6436079982228,-1.63264207275567,1.62610076544201,1.6144977943352,1.59533193795408,1.5896606114769,-1.57247765343721,-1.56341587295996,-1.52419456880156,-1.50413370195418,-1.49252167517323,1.48537193794947,-1.46238273678043,1.45272291966604,-1.4386510632445,-1.40700895966094,1.39421878118367,1.39010105724097,1.36742071737446,1.33605539585079,1.33600774677136,1.32479551953937,-1.30554441935806,-1.29399138190457,-1.23007508125527,-1.18905763510989,1.18295473070453,1.15022081331871,1.13471954213315,-1.12636535345881,1.09041151115222,-1.08566266179672,1.07225130310838,1.05766860037693,-1.05454994542281,-1.04062966799389,1.02563130716614,-1.02144518623332,0.97214786188984,0.952179637642535,-0.941839302243886,-0.933444040411656,-0.925027279220504,-0.923199770330196,0.900386505846682,-0.888845882213125,-0.858637814549416,0.843164565942992,-0.842521336558565,0.835832360769531,0.798256606462923,0.785081720544352,-0.745279556530085,0.673305440048726,-0.652699271877945,-0.646386184853723,0.621446539155614,-0.592072161730283,-0.590854347275377,-0.572844403340829,-0.568167741792624,-0.546644043802787,-0.545509095586994,0.532197998230446,0.516005160797926,-0.491611423819879,0.487296773861651,0.486975102235254,-0.485598482550502,-0.478532347175588,-0.473225343784713,-0.472841201175421,-0.472204886618621,0.466532773962811,-0.463230204494631,-0.45298490594267,0.420651047201767,-0.384578844747584,0.362298758112737,0.343100600516609,-0.331513940896302,0.331230332723763,-0.321276117922955,-0.310614256428395,0.306946622718731,-0.29751586167287,0.292109813484243,-0.285768180184291,-0.267895855642862,-0.266753862315464,0.262604953822232,0.262112692163114,0.245408050079052,0.235829551191628,-0.203624961150599,0.193217538762432,-0.186314684723397,-0.184479808215945,-0.182676659519816,-0.18135149737734,0.175498314215357,-0.174857791366592,0.164728480240875,-0.160020897211662,0.159058951533687,-0.158140583349742,-0.151317311337983,-0.149499585919491,0.149203878140453,0.146457147431322,-0.145113176068306,-0.143508124316639,0.130054859683327,0.129822373900138,0.128178383172175,-0.125788836312203,-0.125057116631904,-0.123721378426908,0.119415573175685,-0.119269726986045,0.106713337499521,-0.105375030308547,-0.105035523369759,-0.102877948107546,0.10226912682609,-0.101289268182301,0.100772696694583,-0.0974286142175218,-0.0972868764324194,0.0968129803979595,0.0954634452802306,-0.0944982333935102,-0.0940118788396594,0.0919189306586701,0.0919189306586701,0.0896567264130821,0.0885304721907208,0.0855585419738173,-0.0764788116798369,-0.0757152207133001,0.0732713195023209,-0.0705496733597449,0.0703567127654188,0.0654942243613996,0.0614962343805165,-0.0614830883122629,0.0612093494288073,-0.0608580232164173,-0.0603273869729237,-0.059167761720044,-0.058354499397397,0.0561802856988327,0.0544943471260471,-0.0537913976683312,0.0529405863839536,-0.0512580370861,0.0503905541704876,0.0491978193697601,0.0476464779018381,-0.0476045606525241,-0.0465590363017153,-0.0450004633143338,0.0448417839422981,-0.0447906995059339,-0.0439505364011396,-0.0435735094387761,-0.0426939993302654,-0.0426939993302654,0.0422225325001164,0.0422225325001164,-0.0421379638615338,0.0409465144821497,-0.0403130898997093,-0.0398725456122115,-0.0374324416675201,-0.0369787725376471,-0.0366656731770871,0.0366622212759779,-0.0361625482368592,-0.0359153171355882,-0.0356098204465369,0.0352260757260286,-0.0344686757216222,-0.0341028841556859,0.0339901301646392,-0.0332586665634194,-0.0325998422478408,-0.032404610645744,0.0312502723623002,-0.0309981816825213,-0.0309842551708957,0.0309585101345903,0.0309585101345903,0.0309585101345903,-0.0309144490747062,0.0307766478931501,-0.0294986661245951,0.0293164427297776,-0.0286930075926678,-0.0276112281414984,0.0271826570687099,0.0271509580636581,0.0269713551980051,0.0261349601698011,-0.0252656142074353,0.0251038062852011,-0.024146638818631,-0.0240384095646767,-0.0229758546655407,-0.0214537713448456,0.0212170550775494,-0.0198864776676024,-0.0194942191515915,-0.0194868296832339,0.0190898974610349,0.0190898974610349,0.0190898974610349,0.0190898974610349,-0.0184332760721014,-0.0184332760721014,-0.0175922223910679,-0.017312197996803,0.0154710466941294,-0.0147545154109569,-0.0147545154109569,-0.0147545154109569,-0.0147445586974681,0.0136262569507418,-0.0129603762981976,0.0129078826422823,0.0129078826422823,-0.0123617317137464,-0.0110422882093574,0.0107520339647305,-0.010692207465128,0.0103158594324473,-0.00993166222572965,-0.00973882202444939,0.00943843183894058,-0.00865845533044541,-0.00805995487819246,-0.00789732212234134,-0.00661177516244008,-0.00660913115928655,-0.00656641093275369,-0.00656641093275369,-0.00656641093275369,-0.00656641093275369,-0.00656641093275369,0.00654809281566629,0.00654809281566629,0.00654809281566629,0.00654809281566629,0.00654809281566629,0.00654809281566629,0.00654809281566629,-0.00610507719640854,-0.00599966926694573,0.00583323792120932,-0.0050147380502765,-0.0050147380502765,-0.0050147380502765,-0.0050147380502765,-0.0050147380502765,0.00489288308923781,-0.00426314109671422,-0.00379409484814394,0.00362461031710654,0.00350520599252984,0.00350520599252984,0.00350520599252984,0.00350520599252984,-0.00344062554833184,-0.00341492142556319,-0.00330534054331759,-0.00330534054331759,-0.00330534054331759,-0.00330534054331759,-0.00330534054331759,-0.00330534054331759,-0.00330534054331759,-0.00330534054331759,-0.00330534054331759,-0.00330534054331759,-0.00330534054331759,-0.00330534054331759,-0.00330534054331759,-0.00330534054331759,0.00320045946718043,0.00320045946718043,0.00320045946718043,0.00307529995514758,-0.00271441228059813,-0.00271441228059813,-0.00271441228059813,-0.00271441228059813,-0.00271441228059813,0.00213983770760098,0.00213983770760098,0.00203859028055483,0.00190816888036626,0.00169256419517098,0.00166469819581388,0.00107304198498033,0.00107304198498033,0.00107304198498033,0.00107304198498033,0.000945794133388906,0.000912238737909562,0.000704027375993843],[5.04611712932575e-29,1.37704238054302e-36,1.46822772795707e-35,7.22208827911336e-26,6.41890708255843e-20,5.14802036435878e-22,4.83797983994971e-15,2.61795171862503e-22,1.84415266727254e-20,2.67919876650728e-20,1.40662456279561e-08,8.34446680577726e-14,1.25091884624423e-43,1.51152767707067e-10,1.49165707293521e-18,1.54981512854892e-14,8.11475964862815e-14,7.65309458190196e-18,1.70218231474027e-16,3.95206908547378e-13,6.01948040889956e-14,8.87693546382242e-14,1.70622461134781e-16,9.05764229664359e-16,2.98185860376214e-10,4.56042175242891e-09,7.40972676540349e-08,6.13757002902153e-11,1.48556041844528e-08,1.7571316433001e-12,4.86679215624688e-21,6.71692550365098e-16,2.9747420728364e-05,4.32791122292235e-13,2.85120187564619e-07,9.63309152530218e-16,0.00134274690435433,3.61506289620181e-09,3.95269229389857e-09,1.26129059939336e-07,4.31933657515081e-15,1.11497752148179e-08,3.42442359089653e-08,2.36519582599069e-12,1.7304935576135e-07,5.67519330933508e-15,3.07967093695212e-08,6.90779418228808e-11,2.4239083713537e-12,1.18792151327678e-06,7.25248962710483e-10,5.66200663274042e-08,1.17704238186226e-08,0.000222875151127968,3.63086782848976e-09,8.22063003796347e-12,2.31174727939731e-05,8.44975392669679e-09,3.81221327635481e-08,1.90313332127676e-11,6.17180192200269e-10,1.93104364646249e-05,3.98013008519659e-08,2.96820968648172e-07,0.000118924693780934,5.15888035464458e-09,6.75967436322401e-08,3.23856188922624e-06,1.58584764183014e-07,8.20350550312787e-12,1.72012300406461e-09,9.22170616183657e-08,1.74900535550108e-17,9.15354354947276e-08,1.38933422688363e-09,1.07885540949834e-08,3.68979347658607e-09,3.68973000647842e-08,1.97921884351355e-11,2.94954778317858e-07,0.000774833041688533,1.47653267330592e-07,4.98675989051428e-06,1.7195004095942e-07,3.5057772973517e-07,4.81709651916639e-05,4.43855822894905e-06,1.01955395925377e-07,2.58607742271549e-09,1.88788046003105e-05,1.27098067283043e-06,7.32555964209588e-10,3.80990088220757e-10,1.15945306025094e-06,7.91259584854123e-05,1.87420050775954e-13,5.34709177758738e-05,4.90350821276717e-07,9.53321491853326e-07,1.63344823759687e-11,1.91262404368749e-05,3.29484835927897e-08,1.08954749159997e-07,5.74141957208779e-08,1.73872582698679e-07,0.000160534599000783,5.52668451873827e-06,6.55422529955239e-06,1.88841238713627e-08,1.21578492037847e-05,4.22731051960427e-11,1.7534361562695e-13,4.17368155017735e-06,3.99343034793935e-11,1.47023792670757e-10,9.41382339827086e-18,1.76735565720424e-05,4.88680091624249e-12,0.000358320924723671,1.48933964453807e-05,1.46879147034496e-06,7.0256020615844e-06,0.000179209041453808,1.5235967598299e-05,0.000256344475801349,0.00113465738066348,5.24288243872128e-08,5.680599715755e-07,0.00201274991968895,1.01354841730668e-06,1.18054480597731e-13,0.000296416743008321,2.97788975238188e-05,0.000135170797372881,0.000183292259103128,1.59254687226004e-07,0.00130940164793555,1.21899884350306e-05,9.92728170053759e-06,4.96560982783829e-05,1.27824295636345e-12,1.17227904877281e-09,2.4800704566409e-06,2.80179430924628e-08,2.1900585347807e-05,6.39776025682623e-05,6.25596445249137e-05,6.66786370728137e-07,3.88948490029518e-05,1.12354448477315e-05,2.49129852701909e-05,0.000560033499786141,1.9915827427221e-06,2.26369902401074e-06,0.0016095889700279,0.00132072542137675,2.66760678174998e-07,1.27167872313635e-05,0.000133528513992306,0.00178651676144312,5.35893214617273e-11,0.000860576601139802,1.52302943083609e-05,0.000726604762350704,4.2662218944732e-05,0.000266497576157294,0.000293243512108607,0.00105455521793988,5.47248086219032e-05,1.30696511248877e-05,6.67348079738951e-05,0.000987016625608959,0.000454116669836349,8.96845837555798e-07,3.08151047803136e-05,0.000242285766071047,0.000102901426810936,2.58646933816765e-05,5.14614773979851e-05,0.000450775506945075,0.000674268279622714,0.000269851023238013,1.97039251426655e-07,2.07763042514828e-08,1.16456147925693e-06,5.68958485801161e-05,0.00109861784125957,0.000106814999315856,4.01017125658717e-09,1.21377564579404e-06,0.000362810643908166,0.000117765526162776,0.000690618217376607,0.000541054443229841,1.39074621483483e-05,9.0684256947857e-05,3.53729782325948e-05,0.000310366136781527,8.92876420340624e-06,0.000346028519101768,6.41891053667304e-13,6.60502333282049e-07,3.65131864008932e-05,9.71546910383067e-06,0.000107364495028571,8.24393128907936e-05,7.57371175711625e-05,1.43791267760931e-06,2.09244145238652e-05,0.000219029389703678,1.67768221941099e-05,2.17545884418915e-06,0.00069008902455738,0.00101858109598971,0.00114661094625147,0.000117764535913284,1.67533655615569e-05,0.000409498066119949,0.000164904350584518,1.13874708077752e-05,0.00027893776163247,0.00075036199301837,0.00063102511928932,0.00115950263117877,0.00053312999774578,0.000469146954430492,0.000141819034057612,0.00111934678971037,5.39940224362147e-05,1.69783911488824e-07,0.000219602078741718,0.00020227236516554,0.00119797348534096,0.000989471048678365,2.5687466202235e-05,0.000367793054513941,0.000530549699069389,0.000181485842381504,0.000290804404996608,0.00016095718484641,3.90875970148893e-07,2.89963705199437e-05,0.00116041274607314,4.01457877229683e-06,0.000306457257112134,0.000222253913105446,2.99158607863738e-07,1.23572856362542e-05,2.17127439878809e-06,9.26591960977542e-05,0.000285378915493227,0.00036846309180001,0.000150202419539424,0.00144512534866223,0.00126672079062857,3.12161416103078e-07,0.000556653296769833,1.78826138336852e-06,0.000969107537124753,3.64573296615788e-06,0.000425157933869434,0.000425841190567729,0.000222420316977807,1.63654650974908e-06,7.09256902699148e-07,1.68830042850942e-05,0.00151977052230385,0.00126373173773521,0.000245564640633648,2.56095840818975e-05,0.0002003117587428,0.000166479880802973,0.000159823793709325,0.000801982844355897,0.00115055236204287,0.00111793073348027,0.000888100550510354,3.71925282801313e-05,0.00034507179529202,0.00129386153577738,9.95599805311449e-05,7.11969789132654e-07,0.000178230714709558,0.000271218605296367,7.7791664790147e-05,2.13345396263809e-08,0.000888157476702992,0.00169158684766285,5.06670189496539e-06,0.000570825730546389,0.00195029247258988,0.000709948214583492,0.000222982418526911,0.00038615585251176,0.00178675187309978,5.4493018705874e-07,0.000652285180422115,0.0014271501091132,7.35843316567894e-06,3.20855501038203e-07,0.000358853383486138,5.52811023999934e-05,0.000804481444511201,0.00197906366914539,0.00027769165051075,3.04914669666849e-05,0.000814723995343317,0.000235250023941612,6.31609510382121e-06,0.000290564312953467,0.000932543725333075,3.73197744075579e-05,8.54702274664589e-06,0.0018244530395331,5.3260538368558e-05,0.000855477862313828,0.000426611409111154,0.000340493169602185,5.45709852970638e-05,0.00101234852753805,4.59230370597509e-08,7.56948354427939e-06,0.000472115764988587,0.000341308226136305,1.48123332903216e-06,0.000224180649870799,0.000302373831737577,2.37095436988171e-05,0.00199902332657768,0.000100055597457952,0.000664011645856419,0.00123964223209816,2.9507701521436e-05,0.000517719628916846,0.00110068655473555,0.000497494581294375,0.000784210617019543,1.06638439520634e-06,4.75145309718163e-06,0.000506003135487028,0.00113942054908375,0.000146691648317601,1.12512166009993e-07,0.00189598507689628,0.000304854764524597,0.000836784236579115,0.000173891957212456,0.00133504579001454,0.000685130374755491,0.000197292734700318,2.06614070071516e-09,0.00012456195432356,1.14555000130512e-06,0.000979521241347211,0.00020975802302322,0.00182971267910026,0.000839789111670631,4.24212571524223e-07,0.00154808357752189,3.9509954990125e-06,0.000251819353708456,4.78650443484994e-05,0.00187807384570412,0.000905913620266131,0.000488168399254851,0.000170163350457777,0.00168713511768522,0.000895389685510469,9.95972061391129e-05,0.000553212933348567,0.000963163747913756,0.00155485108361896,2.94653115049671e-06,2.32503414076097e-05,0.000276516986458187,0.00125945381277081,2.27088659019956e-05,8.22850192406042e-05,0.00133236157096663,4.89730005572067e-08,4.84490381925437e-05,2.79135141046479e-05,0.000514840554103868,0.000612201591664919,5.783484006714e-05,0.000451846143606634,0.000902122348823643,0.000180585574403213,0.000276587520929943,0.000371153768283326,0.000862713716125539,0.00013160643271362,0.00162226933482926,9.05840032644746e-05,3.38098271211438e-07,0.00195385824856393,0.000647857972309478,0.00147007686176373,0.000280261497827364,0.0010689612218998,0.000977969094096512,0.00186788182006547,0.00102058052762615,3.82564597092379e-07,0.00028092029149032,4.72729117812849e-08,0.00153088981531027,2.07020165628507e-05,0.000638290638062871,0.00188292318744128,1.18467124923909e-05,1.94019218261994e-05,0.000946070716602821,0.00204107408621543,0.000135526168400917,0.000563515325801896,0.000136151929261514,0.000376399180904175,0.000122658841081585,8.60420392745299e-05,0.000779521687059335,0.000606067718392192,8.88609758026261e-05,0.00194986652178152,0.000379207947875446,0.000373246707416153,0.00152233643824303,0.000837293412043723,0.00202496175313389,6.84834222326405e-05,0.000992937735335201,0.000794656225532312,0.000240756591664322,0.00149424358894241,9.6145846444438e-06,0.000886029740313361,3.56833370073359e-05,0.00136735162569536,0.000217711198801092,0.00125290112862434,0.000209705157901065,0.00137694381881772,0.000521408372088757,0.000788910857938702,7.62413896299379e-05,0.00180107579959682,0.00131239442498168,0.00112417754371215,0.000553774938006214,4.14183115354201e-05,0.000321237891061676,0.000713425311801736,0.000974219035529323,0.000478592759559778,0.000109088681787049,2.8656905828219e-06,0.00030798047010051,7.84819720146992e-05,1.77341083790369e-10,0.000897631157327991,0.000930943505827185,0.00198184091352651,0.000106945479369965,7.76907786824424e-07,0.000763000379223091,0.00203386241639683,0.00182661864362446,0.00126504728937973,2.8874331691004e-06,0.00156224300758632,0.000770819848479077,0.000804564653677051,0.00115379654265984,0.000385924072032193,0.00183282212936953,0.000183979254579546,0.00050767009025408,0.00100301943088144,0.00179190372224857,0.000409231587999352,0.00185420810059341,0.000360775285403896,0.000790455135480622,0.00119068931354877,0.000203858329438572,0.000281974219458418,4.86558614469817e-07,1.19612889365472e-05,0.000150373768445849,0.000122485143444257,0.00042821176232783,5.24012711395521e-05,4.88846091911462e-06,0.00075610714137459,3.94362052220839e-12,0.000899750939579581,0.000102733121890732,0.00163015262802027,0.000175154176861726,1.73312893128198e-11,0.00198304268066757,7.1556654010319e-05,2.1702711737592e-09,1.50994196060814e-05,1.50376645989585e-08,0.000259747327073433,5.59504362558495e-05,6.45573809693799e-06,0.00186837690726473,9.24316308507901e-05,3.00365764884736e-08,0.000107400816136973,2.75665621555663e-06,0.000298937054774659,0.00190230999018037,0.000655057815278259,0.000570463093067963,0.000130290365757236,0.000387533466410981,3.30819562659181e-05,7.31252238968816e-07,0.000100483758676895,0.00203092471841419,0.000187979852448187,5.11471740320049e-07,0.000330442306762221,0.000401134236871555,0.000891552483603229,1.50376645989585e-08,0.000775698577503468,0.000235095688015933,0.000974007895333528,4.89379129766119e-06,0.000988907638901386,0.00200337278757081,0.00200337278757081,4.6932111767291e-08,1.19827238762843e-05,0.00117207734593707,1.50376645989583e-08,0.000541094422120448,0.00109402260330139,1.62327910704943e-05,9.91587780826083e-12,0.000230419821713733,0.00123735416572055,0.000697090058068371,0.000373173448339722,0.000106413968438916,0.00119006235234248,3.97750269308918e-06,0.000140623348319231,9.8579799252571e-07,3.30819562659184e-05,9.00662395437651e-05,0.000293982892074401,0.000542838781436014,0.00185747932337325,3.30819562659181e-05,0.000293982892074406,3.31239448591283e-08,1.54593029036076e-05,1.46475848144446e-05,0.000583138044058687,4.39247578849576e-08,0.000240882088901549,5.23912778615939e-05,1.46475848144444e-05,1.46475848144444e-05,0.000293982892074406,0.000293982892074406,3.49654942968782e-07,3.30819562659177e-05,0.000679165982703145,0.00192490443909436,6.28333041289106e-06,1.50376645989585e-08,0.00152540900118888,0.000293982892074406,2.82546978404761e-06,3.12976257649363e-06,0.000516055530658935,3.30819562659184e-05,0.00114193408664898,1.50376645989583e-08,6.15883414541028e-05,1.46475848144446e-05,0.00146910992920813,0.00013643752423603,0.000200462429658027,8.42226254855332e-05,7.95665525946663e-05,0.000293982892074406,0.000293982892074406,0.000293982892074406,0.000808124640702001,7.37440897188378e-05,0.000823714774611829,3.30819562659177e-05,0.000328241736563719,0.000258177450135525,4.47726198769052e-07,0.000776434756648844,6.68693985912123e-07,0.000496827792597572,1.50376645989585e-08,0.000293982892074406,0.00108865336678009,0.000155980090672874,0.000259984248591922,3.84932888945117e-06,0.000192016076631903,5.03730509508717e-05,0.000542173955865491,0.000328241736563721,0.000293982892074409,0.000293982892074409,0.000293982892074409,0.000293982892074409,1.46475848144446e-05,1.46475848144446e-05,0.000104789001630562,0.000473943947065914,6.68693985912123e-07,0.000328241736563725,0.000328241736563725,0.000328241736563725,1.26179832233301e-06,3.30819562659181e-05,1.50376645989583e-08,0.000293982892074406,0.000293982892074406,1.26697320745278e-05,0.000104387413162432,1.26501792764068e-05,1.46475848144444e-05,3.30819562659181e-05,0.000328241736563721,0.000132520765964293,6.68693985912118e-07,0.000157099556897372,1.46475848144447e-05,0.000604776281476962,1.35056108260976e-05,4.69544803356649e-06,1.50376645989579e-08,1.50376645989579e-08,1.50376645989579e-08,1.50376645989579e-08,1.50376645989579e-08,0.000293982892074406,0.000293982892074406,0.000293982892074406,0.000293982892074406,0.000293982892074406,0.000293982892074406,0.000293982892074406,1.01844749170372e-09,1.74958083498028e-05,7.69314304032537e-06,0.000328241736563723,0.000328241736563723,0.000328241736563723,0.000328241736563723,0.000328241736563723,1.13297130039838e-06,0.000803230428868295,2.52853344680702e-05,0.000161991712529566,3.30819562659181e-05,3.30819562659181e-05,3.30819562659181e-05,3.30819562659181e-05,0.00147545566346687,0.000245874546009307,1.50376645989582e-08,1.50376645989582e-08,1.50376645989582e-08,1.50376645989582e-08,1.50376645989582e-08,1.50376645989582e-08,1.50376645989582e-08,1.50376645989582e-08,1.50376645989582e-08,1.50376645989582e-08,1.50376645989582e-08,1.50376645989582e-08,1.50376645989582e-08,1.50376645989582e-08,6.68693985912118e-07,6.68693985912118e-07,6.68693985912118e-07,1.1706637568534e-05,1.46475848144447e-05,1.46475848144447e-05,1.46475848144447e-05,1.46475848144447e-05,1.46475848144447e-05,6.68693985912118e-07,6.68693985912118e-07,9.07390147296662e-05,0.000183608172999985,0.00013129359638678,4.57468820899956e-05,6.68693985912118e-07,6.68693985912118e-07,6.68693985912118e-07,6.68693985912118e-07,1.13084436726304e-06,0.000101203562636634,0.00156030086447356],[2.19064559876854e-25,1.19561704690648e-32,8.49859149865817e-32,2.50823125933607e-22,1.01331201353297e-16,1.27707676610129e-18,3.81870545094212e-12,7.57678859898727e-19,3.5581901185764e-17,4.65242865803989e-17,2.46348156378222e-06,5.36672837341934e-11,2.1722205765031e-39,4.86068113191337e-08,2.15855208929333e-15,1.1213558211355e-11,5.36672837341934e-11,1.02227682626713e-14,1.74285825741499e-13,2.14461498966413e-10,4.18113109202163e-11,5.50528515461701e-11,1.74285825741499e-13,8.27820834111662e-13,9.24642404541599e-08,1.08481813330038e-06,1.00523363500962e-05,2.08978242262665e-08,2.46348156378222e-06,8.47571971830728e-10,1.05639807241534e-17,6.47996729838329e-13,0.00174111298148523,2.27739934503171e-10,3.43827226184695e-05,8.36393171684361e-13,0.0353820940730091,9.13768403503257e-07,9.66739460331671e-07,1.63450084018401e-05,3.57167998226161e-12,2.46348156378222e-06,5.17087962225376e-06,1.10766233864624e-09,2.1413456727394e-05,4.28477094854798e-12,4.77486480537264e-06,2.30680473029678e-08,1.10766233864624e-09,0.000108569774095007,2.12013905308325e-07,7.86565961420299e-06,2.46348156378222e-06,0.0090048597621391,9.13768403503257e-07,3.39883906212466e-09,0.0014085435616398,1.95639969249453e-06,5.65804132853856e-06,7.18432828781978e-09,1.84781621337201e-07,0.00120188433407961,5.85719990927447e-06,3.53033980861336e-05,0.00544888471637446,1.2105940183568e-06,9.24265711160511e-06,0.000267798224792446,2.01858222166392e-05,3.39883906212466e-09,4.66717749462217e-07,1.23180713461763e-05,2.02476519988509e-14,1.23180713461763e-05,3.82949029362448e-07,2.46348156378222e-06,9.15332338870246e-07,5.5234622036636e-06,7.31258196119421e-09,3.53033980861336e-05,0.0232461888779434,1.89925850903387e-05,0.000390067952697209,2.1413456727394e-05,4.00511991898107e-05,0.00259779133712188,0.000355186929242859,1.35149271011005e-05,6.70257230529172e-07,0.00118350340030466,0.000114355333594303,2.12013905308325e-07,1.16068296174622e-07,0.000106997936969823,0.00393702655902345,1.04985457474982e-10,0.00281370450660015,5.38920380472797e-05,9.14609265526685e-05,6.44655196497038e-09,0.00119470203304436,5.04559037262072e-06,1.43333274179042e-05,7.91267864042099e-06,2.1413456727394e-05,0.0069692082791215,0.000428441413695938,0.00049918474704705,3.06469916846929e-06,0.000863996527242065,1.4981070851618e-08,1.01494729512066e-10,0.000335536944994582,1.44470662483264e-08,4.81710973533528e-08,1.1676503093641e-14,0.00111196126765767,2.12148244776377e-09,0.012315195660547,0.000972270034864799,0.000130797763500206,0.000532749256765996,0.00760871639326496,0.000983541179719193,0.0100939270346722,0.0310778003394657,7.34214947970928e-06,6.12693255056432e-05,0.049436212666759,9.61763293253036e-05,7.06902088130893e-11,0.0107011990485229,0.00174111298148523,0.00604958993912391,0.00771690762264206,2.01858222166392e-05,0.0347672165388393,0.000863996527242065,0.000727372349071035,0.0026613523043337,6.34191112492896e-10,3.28332672289352e-07,0.000212149869357484,4.4230143800056e-06,0.00134382920340872,0.00326756196646434,0.00320456704181453,6.63535489449373e-05,0.00213062792724372,0.000819762604121252,0.001502131907003,0.0176496945985233,0.000173788112197836,0.00019459967104924,0.0413469119297846,0.0349609709484867,3.23937005350269e-05,0.00088685546294228,0.00599153138365993,0.045494056123721,1.86115713436579e-08,0.0250316795289659,0.000983541179719193,0.0220200553197556,0.0023223493165369,0.010399394179711,0.0106354435851502,0.0292997621752417,0.00285374264780585,0.000907817967134699,0.0033983869221897,0.0277579398389335,0.0149351060070231,8.6520710939758e-05,0.0017896464699336,0.00962767123071792,0.00485566107764105,0.00153815205675621,0.00274119188655218,0.014881590642778,0.0207233073905282,0.0105066435393007,2.40956802889004e-05,3.34056040117591e-06,0.000106997936969823,0.00294046550771939,0.0303298868258704,0.00497337379258277,9.67175331536614e-07,0.000110351906226249,0.0124019819517034,0.00541004857623441,0.0210765999028907,0.0172328984271232,0.000958345556373285,0.00438908911080962,0.00196875566349041,0.0110667514686062,0.000662598249539099,0.0119221929250044,3.27836416086257e-10,6.63535489449373e-05,0.00201927223519589,0.000714869156728897,0.00497337379258277,0.00406692803508134,0.00381210158441518,0.000128708008488071,0.00128848389435078,0.00894928318165733,0.00106714108937992,0.000187944491688282,0.0210765999028907,0.0283911087188785,0.0312572984013451,0.00541004857623441,0.00106714108937992,0.0136486255627119,0.00710561798486389,0.00082737837061513,0.0106354435851502,0.0227004111650941,0.0196024171671897,0.0314361424891732,0.017049359872662,0.0154002587215227,0.0062663804743268,0.0307554699419629,0.00283264712871561,2.13644755290103e-05,0.00895161994683083,0.00836299909785619,0.0322524179425515,0.0277579398389335,0.00153286202955949,0.0125458070374651,0.0169981467238744,0.0076678872334667,0.0106354435851502,0.00697012846597981,4.40750728677631e-05,0.00171265977577831,0.0314361424891732,0.000324247257585742,0.0109724335458808,0.0090048597621391,3.53393824867606e-05,0.000872293760461602,0.000187944491688282,0.00445713833860804,0.0106354435851502,0.0125458070374651,0.00659404163904587,0.0378500779479935,0.0337371265786275,3.66262364231753e-05,0.0175750627243784,0.000156834135970678,0.0274976346113911,0.000300038639608207,0.0141376090061359,0.0141376090061359,0.0090048597621391,0.000144257005795902,6.98494654705567e-05,0.00106997580076883,0.0395072082631832,0.0337371265786275,0.00972576649533396,0.00153286202955949,0.00830794771124494,0.00715575032213768,0.00695573979389078,0.0237203144500883,0.0313155827066997,0.0307554699419629,0.0256619876588144,0.00205031191614121,0.011912866252974,0.0344072060777553,0.00476447791902395,6.98494654705567e-05,0.00758572637483203,0.0105362664003835,0.00389294599158762,3.39884661112022e-06,0.0256619876588144,0.0431976553083316,0.000394543849354592,0.0178923985757005,0.0484503988362277,0.0215906317797589,0.0090048597621391,0.0129702057618312,0.045494056123721,5.91419543642189e-05,0.0201546835552136,0.0374357426657866,0.00055556170400876,3.73936629230093e-05,0.012315195660547,0.00287412078795175,0.0237203144500883,0.0489836929584528,0.0106354435851502,0.00177679303314256,0.023938548526458,0.00941271121139654,0.000485305272025908,0.0106354435851502,0.0265905119711147,0.00205081608413684,0.000636991630882,0.0462379486101148,0.00281115273182374,0.0249251226159054,0.0141376090061359,0.0118017243316206,0.00285374264780585,0.0282627527020872,6.64544615452145e-06,0.000569021998902215,0.015468472186843,0.0118064090574839,0.000131232738564508,0.00903224358470167,0.0108710591886605,0.00143455131125422,0.0492755927141176,0.0047732567303773,0.0204442592735757,0.0332710778367613,0.00173695334549063,0.0166485210298908,0.0303387651158459,0.0161476512227604,0.0233983116229285,0.000100640027297599,0.000376753347180635,0.016393179939799,0.0311591147005343,0.00646522962699274,1.46900282914551e-05,0.0473723465615883,0.0109376094751439,0.0244774412460257,0.00743752176599581,0.0352326293975722,0.0209828729411448,0.00821579937187295,5.51977434891056e-07,0.00566235166709062,0.000106376875789644,0.0276126401883025,0.00861098834467664,0.0462488510517846,0.024509139368337,4.75254922872138e-05,0.0400036775649815,0.000322108154180056,0.00993827972078941,0.00258933487573736,0.0470602486733797,0.0259162932716991,0.015904398223378,0.00729601624864023,0.0431474246223916,0.0257851440943438,0.00476447791902395,0.017516032419814,0.0273737127373525,0.0401188544829765,0.000245992853021036,0.00141168593896203,0.0106354435851502,0.0336986370705164,0.00138851921263434,0.00406692803508134,0.0352153100149704,6.91395247703979e-06,0.00260469829168273,0.00165432823353997,0.0166174836840403,0.019051757418031,0.0029801246224507,0.0148886305194103,0.0258504201110933,0.00764845975490679,0.0106354435851502,0.0126126911668101,0.0250518790644147,0.00593596286771949,0.0416110886252734,0.00438908911080962,3.91405098639108e-05,0.0484696406947324,0.0200535716384208,0.038387796548161,0.0106354435851502,0.0296525744701119,0.0276126401883025,0.0468849205125029,0.0284012513817757,4.34198315588834e-05,0.0106354435851502,6.72864027116403e-06,0.0396183332978582,0.00127932568545873,0.0197927088035031,0.0471137768730805,0.000853602333735969,0.00120326561611411,0.0269319967111606,0.0498498614727581,0.00604990209326971,0.017727252957518,0.00605943122342368,0.0127162875027257,0.00559047447606751,0.00422067800000625,0.0232984407844842,0.0188947323696237,0.00434667843609184,0.0484503988362277,0.0127863029414702,0.0126343646672154,0.0395147567265923,0.0244774412460257,0.0496659051457204,0.00347723575166609,0.0278102641517674,0.0235883852245617,0.00959384741691605,0.0389018589535008,0.000710456435535177,0.0256619876588144,0.00197968417614181,0.0359758499699998,0.00891640322448339,0.0335750433619778,0.00861098834467664,0.0361734181751433,0.016736148579152,0.023498176754898,0.00382639228590714,0.0457246802046767,0.0347934796790944,0.0308394044969375,0.017516032419814,0.00226172635161185,0.0114226808726034,0.021658444999016,0.0275526279347992,0.0156217354694653,0.00503809829583006,0.000241566587236419,0.0110042816117188,0.00391620529895187,5.5991416727632e-08,0.0258068957731797,0.026588542728107,0.0489836929584528,0.00497337379258277,7.53687358559002e-05,0.0230026069187656,0.0497436913531423,0.0462379486101148,0.0337371265786275,0.000242223560296756,0.0401901478914613,0.0231980704832568,0.0237203144500883,0.0313547370317497,0.0129702057618312,0.0462601108670085,0.00771690762264206,0.0164165570153856,0.0280473951968698,0.0455584306542407,0.0136486255627119,0.0467319646833157,0.012356731422167,0.0235038586089401,0.0321060868474758,0.00840855080926558,0.0106354435851502,5.38158620399259e-05,0.000856296296755872,0.00659404163904587,0.00559047447606751,0.0141636138149005,0.00277423193090952,0.000384527990424826,0.0228344356695126,1.75592231713202e-09,0.0258250827533875,0.00485566107764105,0.0417516229875694,0.00747310142801936,6.68795197593589e-09,0.0489836929584528,0.00362268599676149,5.71011498974675e-07,0.000982027795728852,2.46348156378222e-06,0.0101680776504476,0.00290023679278456,0.000493849744728318,0.0468849205125029,0.00445713833860804,4.69896532182292e-06,0.00497337379258277,0.000234653603838926,0.0107697965895476,0.0474620876141986,0.0202044031302078,0.0178923985757005,0.00590729034301412,0.0129913487340283,0.00184716453555522,7.13381748859185e-05,0.00478054923129941,0.0497419008959978,0.00786571117533196,5.58597910104254e-05,0.0114762613138519,0.0134213796209529,0.0257172904946347,2.46348156378222e-06,0.0232461888779434,0.00941271121139654,0.0275526279347992,0.000384527990424826,0.0277579398389335,0.0492755927141176,0.0492755927141176,6.72864027116403e-06,0.000856296296755872,0.0317026839753851,2.46348156378222e-06,0.0172328984271232,0.0302511186406507,0.0010401565200706,4.00440042187091e-09,0.00926213010198836,0.0332610759872096,0.0212367874708022,0.0126343646672154,0.00497337379258277,0.0321060868474758,0.000322753898436886,0.00622939909072309,9.40570447264229e-05,0.00184716453555522,0.00438908911080962,0.0106354435851502,0.0172328984271232,0.0467465629715601,0.00184716453555522,0.0106354435851502,5.04559037262072e-06,0.000994262203411654,0.000959831359633331,0.0182453912343768,6.4096926106915e-06,0.00959384741691605,0.00277423193090952,0.000959831359633331,0.000959831359633331,0.0106354435851502,0.0106354435851502,4.00511991898107e-05,0.00184716453555522,0.0208369563421203,0.0479569090170352,0.000484933478310459,2.46348156378222e-06,0.0395354138890224,0.0106354435851502,0.000239337964877984,0.000260039842779004,0.0166257964562011,0.00184716453555522,0.0311787506519803,2.46348156378222e-06,0.00316414659571153,0.000959831359633331,0.038387796548161,0.00605943122342368,0.00830794771124494,0.00414313283726992,0.00394763767373251,0.0106354435851502,0.0106354435851502,0.0106354435851502,0.023784888789475,0.00372257592432447,0.0241618362519162,0.00184716453555522,0.0114226808726034,0.0101431027638086,4.9838240010414e-05,0.0232461888779434,6.63535489449373e-05,0.0161476512227604,2.46348156378222e-06,0.0106354435851502,0.030150663020951,0.00682265560336137,0.0101680776504476,0.000315299981911885,0.00801528646806008,0.00269147086080581,0.0172328984271232,0.0114226808726034,0.0106354435851502,0.0106354435851502,0.0106354435851502,0.0106354435851502,0.000959831359633331,0.000959831359633331,0.00491800273868841,0.0154991273838034,6.63535489449373e-05,0.0114226808726034,0.0114226808726034,0.0114226808726034,0.000114120457642254,0.00184716453555522,2.46348156378222e-06,0.0106354435851502,0.0106354435851502,0.00088685546294228,0.00491243205844345,0.00088685546294228,0.000959831359633331,0.00184716453555522,0.0114226808726034,0.00596171787816051,6.63535489449373e-05,0.00685435629528357,0.000959831359633331,0.0188883815249055,0.000934362278865276,0.000374020436251753,2.46348156378222e-06,2.46348156378222e-06,2.46348156378222e-06,2.46348156378222e-06,2.46348156378222e-06,0.0106354435851502,0.0106354435851502,0.0106354435851502,0.0106354435851502,0.0106354435851502,0.0106354435851502,0.0106354435851502,2.89923617925165e-07,0.00110478077088846,0.000575825124548492,0.0114226808726034,0.0114226808726034,0.0114226808726034,0.0114226808726034,0.0114226808726034,0.000105774444254935,0.0237203144500883,0.00151930738075446,0.00699747783103463,0.00184716453555522,0.00184716453555522,0.00184716453555522,0.00184716453555522,0.0384704017959491,0.00972576649533396,2.46348156378222e-06,2.46348156378222e-06,2.46348156378222e-06,2.46348156378222e-06,2.46348156378222e-06,2.46348156378222e-06,2.46348156378222e-06,2.46348156378222e-06,2.46348156378222e-06,2.46348156378222e-06,2.46348156378222e-06,2.46348156378222e-06,2.46348156378222e-06,2.46348156378222e-06,6.63535489449373e-05,6.63535489449373e-05,6.63535489449373e-05,0.000847024005739969,0.000959831359633331,0.000959831359633331,0.000959831359633331,0.000959831359633331,0.000959831359633331,6.63535489449373e-05,6.63535489449373e-05,0.00438908911080962,0.00771690762264206,0.00593596286771949,0.00248248314841492,6.63535489449373e-05,6.63535489449373e-05,6.63535489449373e-05,6.63535489449373e-05,0.000105774444254935,0.00480163897591572,0.0401901478914613]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>FC<\/th>\n      <th>P<\/th>\n      <th>FDR<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[1,2,3]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<p>Display heatmap of significant genes:</p>
+<pre class="r"><code>plotHeatmap(
+  object = sce,
+  features = rownames(de1)[1:50],
+  columns = complete.cases(sce$slingPseudotime_1),
+  order_columns_by = &quot;slingPseudotime_1&quot;
+)</code></pre>
+<p><img src="figure/mouse-pseudotime.Rmd/unnamed-chunk-14-1.png" width="1344" style="display: block; margin: auto;" /></p>
+</div>
+<div id="pseudotime-2" class="section level3">
+<h3>Pseudotime 2</h3>
+<p>Test for differences along pseudotime:</p>
+<pre class="r"><code>de2 &lt;- TSCAN::testPseudotime(sce, pseudotime = sce$slingPseudotime_2, df = 3, block = sce$batch)
+
+metadata(sce)$testPesudotime$slingPseudotime_2 &lt;- de2</code></pre>
+<p>Subset by significance and order by effect size:</p>
+<pre class="r"><code>de2 &lt;- subset(de2, FDR &lt; 0.05)
+
+de2 &lt;- de2[order(abs(de2$logFC), decreasing = TRUE), ]</code></pre>
+<p>Display table of significant genes:</p>
+<pre class="r"><code>DT::datatable(
+  data = as.data.frame(de2[, c(&quot;logFC&quot;, &quot;p.value&quot;, &quot;FDR&quot;)]), 
+  colnames = c(&quot;FC&quot;, &quot;P&quot;, &quot;FDR&quot;)
+)</code></pre>
+<div id="htmlwidget-33cfbf923126e5ed71dd" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-33cfbf923126e5ed71dd">{"x":{"filter":"none","data":[["Phlda2","Spin2c","Egfl7","Ramp2","Cldn5","Sparc","Esam","Plvap","Cdkn1c","Hand1","Msx1","Ecscr","Crip2","Pitx1","Clic1","Rasip1","Apoe","Fn1","Fam212a","Krt8","Pmp22","Igfbp4","Ugdh","Snai1","Meg3","Dusp2","Gadd45g","Bambi","Aplnr","Tfpi","Creg1","Pja1","Lmo2","Flt1","Vim","Kdr","Gngt2","Mest","Rab11a","Cdx2","Upp1","Emilin1","Tmsb4x","Klhl6","Cmtm3","Cd81","Pecam1","Sox18","Hapln1","Gng11","Wbp5","Grap","Icam2","F11r","Gja4","Msn","Cd34","Msx2","Pdgfa","Ralb","Tspan18","Tax1bp3","Sall4","Oat","Ndufa8","Bmp4","Ngfrap1","Cmtm8","Ctla2a","Tek","Elk3","Snrpn_ENSMUSG00000102252","Rhoj","Ctsh","Hhex","Nid1","Mtx2","Tmem88","Cdx4","Cnn3","Fli1","Ppp1r14a","Tpm4","Myzap","Pdlim4","Gata4","Isl1","Cib1","Kcne3","Fam107b","Plxnd1","Arap3","Exoc3l4","Myo1c","Vamp5","Rnf128","Sox17","Plec","Ppp1r15a","Col4a2","Lpar6","Dusp3","Cnn2","Dnmt3a","Cd59a","Ddah2","Ngfr","Sptan1","Plk2","Flt4","Cox4i2","Thsd1","Txnip","Cdh5","Pgf","Elmo1","Sipa1","Ccdc34","Tcf4","Cmas","Cxx1a","Rnf114","Sgk1","Isy1","Hoxc8","Cd9","Pfn1","Gimap1","Calm1","Ssr2","BC028528","Itga3","Ptov1","Oit3","Afap1l1","Cxx1b","Ccdc85b","Ppp1r18","Slc16a13","N4bp3","Slc43a3","Fam43a","Adam15","Abi3","Gmfg","Eng","2010111I01Rik","Car2","Map3k11","9930012K11Rik","Plagl1","S1pr1","Rapgef5","Gpr116","Lrrc8b","Prex2","Pde4b","Fgd5","Lama4","Zfp28","Lhfp","Csgalnact1","Nes","Glipr2","Ppp3ca","Etv2","Mcam","Pald1","Exoc3l2","Crb2","Igf1","Gprc5a","Reep1","Cd38","Gimap5","Gdpd5","Ptp4a3","Sepp1","Creb3l2","Nfic","Stab1","Cfl1","Fam65a","Bst2","2700097O09Rik","Mmp15","Npl","Mettl7a1","Mtus1","Atp13a2","Gramd4","Mknk1","Rbm42","Plekhf2","Lcp1","Pf4","Adora2a","Pcdh1","Ctla2b","Vcl","Slc30a1","Syce2","Clu","Nos3","Atp1a1","Dlgap5","Bcl6b","Gnb1l","Cd40","Errfi1","Scarf1","Sema6d","Tmem180","Apaf1","Tal1","Prkcdbp","Tgfb2","Itga2b","Afp","St5","Skap1","Xpo5","Ptprb","Kcnk5","Dll4","Vgll4","Tmem141","Pank1","Fut10","Dpysl3","Mdfic","Rasl11b","ENSMUSG00000110206","Apoa4","Spink8","Gpr27","C130074G19Rik","Cdx1","Dhrs3","Pomgnt1","Ddx42","Sema6b","Nrg1","Apobr","Dynlt3","Nop56","Hhipl2","Zfp93","Cd93","5730460C07Rik","Gm3411","Cracr2b","Ccdc64","Trnp1","P2ry1","Vps37c","Lphn2","Gipc2","Pdlim2","Dusp23","Cnpy4","Adrm1","Tmem120b","mt-Nd1","Fbxw9","Tlr4","Wdfy1","Cmpk2","Mpo","Wbscr27","Jak2","Ehd2","Cyba","Fam78b","Dhx29","Gm26620","Gm826","Slc16a4","Slc30a3","Gfi1","Sh2d4a","Gm10639","Gm26614","Dclre1c","Bach2","ENSMUSG00000105851","Atl1","Inpp4b","Fam212b","Slc22a3","Spry2","Asb8","Zfp600","Vwa5a","Zfp384","Abca7","Fbxw8","Nos2","Manf","Gata5os","Lag3"],[-11.6895600187503,-11.3498565651583,9.41995039183148,8.26609330528302,7.37026369205735,7.31509534510682,7.17993327072165,7.05692406073232,-7.05548654184642,-6.84708945608752,-6.83435294801485,6.49974578234445,6.39091302246564,-6.31718921714423,6.12007796404275,5.97781854741129,5.95798325434516,5.86065289044828,5.66809096366632,-5.53348450934223,-5.41643780785613,5.31724910056962,-5.30987696228285,-4.95303321589518,4.77363546649519,4.60418340180798,4.57364644128521,-4.52325954458924,4.47401207128725,4.46428028781615,4.46284865789236,-4.43668038391447,4.41409681234641,4.40694145413248,4.4007421360893,4.35916783253374,4.35328229141404,4.31737532521348,4.31122016890989,-4.29704647185988,4.28545315997977,4.26760401410965,4.24032696101295,4.22173317807047,4.13679680482788,4.12329571846271,4.09953950405119,4.02423287818809,3.99787664286913,3.9724683482182,-3.96669044855656,3.93778545091916,3.9144643005814,3.90345953413801,3.87327306908329,3.86108091902513,3.85191743547014,-3.84055794705676,-3.82567299996096,3.80534543599969,3.78802224260989,3.76971356474764,-3.74059692402985,-3.73245318963851,3.73219000164198,-3.70083417943211,-3.6812221531914,3.65434944388909,3.60225524750106,3.58856109691239,3.55184820764333,-3.53442659406032,3.51791895063678,3.49199889456148,3.3796114765636,3.35832995111008,-3.32654675822389,-3.30311927707437,-3.26312125340813,-3.23846497644628,3.20370590866646,-3.19501616809723,3.1883123824189,3.18580462281656,-3.1744945891349,-3.16560495504437,-3.05334858391726,3.05284686911623,3.04060949415087,2.9893297596537,2.98089319739631,2.97382091363004,2.925127791631,2.89975768818633,2.89189030209061,-2.88593854940123,2.86511882585226,2.82972598316906,2.7679327474055,2.72316346146772,2.66917606278215,2.64388358011777,2.6434503973109,2.63582834768076,2.63149597116048,2.62357225571824,-2.61512214296605,2.61248993015144,2.58933564839151,2.54040126339283,-2.53429851128961,2.49529077854219,2.47924007415175,2.47403016191655,-2.46150017239257,2.45505570772549,2.44011440492425,-2.38867758889293,2.33117122448317,2.31098719028169,2.30305853701432,-2.30214138217311,2.28528019375971,-2.27082275797104,-2.24589846423322,2.20850678606884,2.2084465929373,2.1882189661138,2.18803892278671,2.18091198172401,2.16979859575028,2.16844237401101,-2.16156095425058,2.11982292903093,2.08057069312509,2.07784655767699,2.06184473211685,2.03414257066148,1.9702639274241,1.93702143835547,1.92234756897438,1.89936794908835,1.88795636579857,1.87717648559084,1.87191440522584,1.85908213611944,1.85663932820723,1.84711138168925,1.80372020788726,1.77394044067608,1.77039617788425,1.74508183756597,1.73483280639203,1.64947462588506,1.62111586938881,1.61563750292362,1.56184899197236,1.50666655946639,1.48943703608271,1.48195585154423,1.47477434364276,1.47149302989464,1.43150051977646,1.42161694235837,-1.41637974810552,1.41040755887217,1.39428452313295,1.39091504231241,1.36379636905312,-1.34770434669598,1.3268097835774,1.30839387733291,1.30374344658481,1.30295040574006,1.29885138296927,1.27505001847582,1.2603097512746,1.25696723395248,1.25671599122511,1.24323384919008,1.20459290023594,1.19872092084119,1.18410833870642,1.1832223815736,-1.1291898607974,1.11481112096626,1.10165642417786,-1.07861395615606,1.07580588085678,1.06414350623117,1.06100678058833,1.05278285907845,-1.04763962754443,1.03119190547962,1.02058473679765,1.00109139986121,0.992751789100399,0.987616687641533,0.953039360199288,0.927731137917202,0.916167966551049,-0.912142771792269,0.870067478328722,0.863727560328341,0.86346846827959,-0.859053238257408,0.830263947610477,0.824803726326764,0.822519244523124,0.787393226917141,0.783125670264768,0.782972008579315,0.74909964326612,0.736168316860952,0.709813489568902,0.696134842609771,-0.69247300079403,0.690768838122466,0.634060872020154,0.627779462494666,0.622477359178771,-0.621638362417424,0.590740539965255,0.589252702388995,0.577401105917814,0.573869479465453,-0.551390841393103,0.534006532001851,-0.515677191808786,0.503913625818971,0.480902031940896,-0.474239508641177,0.469292155615665,0.469292155615665,0.469292155615665,-0.454964968071446,0.416460209816353,-0.41001598284045,0.4020054025032,-0.38158486336856,-0.379297374629514,0.354728696033394,0.348138293581983,0.333086574590727,-0.326390554163671,0.325700148373881,0.323388697104857,0.317395295585503,0.312466235854404,0.31145833713642,0.308378736584942,0.301209914344603,0.301094472704663,0.283306341214671,0.282601020547874,-0.236871156040297,0.227518305092461,0.195917931335531,0.190054038132253,0.189921963364652,-0.189043578471709,0.188405301666667,0.187503414924223,0.185112168143963,0.180870888067989,0.171561373960064,-0.170510425555596,0.168927518850683,0.16869423915289,0.165819202067934,0.161958416813266,0.15867807508798,0.155210895322266,0.149311437543387,0.141940892252217,0.139392705180386,0.139392705180386,0.139392705180386,0.139392705180386,0.139392705180386,0.139392705180386,0.139392705180386,0.139392705180386,0.136139004965379,0.130125487545128,-0.113686253425975,0.110332824213312,0.11028394784685,0.0809854646840291,0.0657691027894799,0.0648761531606726,-0.0609069422516926,0.057005264001163,0.0551389288482109,-0.0508074717115228,-0.0394684089839503,-0.0353431736377343,0.0345205048401831,-0.0278564234830173,-0.0244034956249655,-0.0199606452054662],[2.59179174881503e-17,1.20999352707462e-17,4.90053374993495e-14,9.09160666802164e-18,1.90214591120682e-17,2.399096203378e-08,7.73562159853112e-17,9.79762074734134e-12,3.69081143073005e-05,7.04048141870842e-10,2.72196553188497e-07,9.39697816809119e-11,6.41492239602192e-08,3.21926552114957e-08,1.61392396787947e-08,8.24967752275442e-15,3.16910373133945e-08,0.000314369565172711,2.14885818376662e-09,1.74165320161085e-05,2.66281817659506e-09,2.03526907572614e-07,5.91203983287962e-07,8.6593774099064e-06,9.29397477740033e-05,1.25757463659092e-08,7.18843780951754e-06,0.00017466712843849,1.71768574344782e-08,1.28768327675212e-08,5.0163931006349e-06,6.81994806084018e-05,1.0564126363488e-09,1.01950593858246e-09,4.31327396930696e-05,1.27196171839344e-07,2.21112438178416e-15,0.00020047463041614,7.85681356854161e-05,0.000613219937264331,5.26035905057115e-09,0.000535595267178844,0.000504296939500338,4.21025440061847e-10,3.45825698817707e-07,3.5678464176359e-08,6.06321146601382e-18,0.000576303599231523,5.62590523708384e-07,3.58516702362627e-05,5.58878829007051e-07,1.50928287093472e-05,8.53870153218436e-14,1.39025583388789e-07,5.4351519062955e-05,1.2289431585144e-06,1.4796428891435e-06,1.44776813512456e-07,1.20278958615174e-12,0.000250181264751165,6.76049343399324e-07,0.000232805500214827,2.83833430708905e-06,4.01484199680046e-05,6.20711483478118e-05,2.42961594525771e-07,3.07771756854143e-06,0.000341834210258797,2.03318635048298e-14,1.89363939463993e-07,1.46357024848402e-06,0.000954712192519737,9.44982299022737e-06,1.17541413344286e-05,1.71941360413735e-08,6.71538554622863e-05,0.000615933039392004,0.000430138809750073,2.09099136709381e-05,0.00014946794390014,0.000178078921222484,3.11956969851779e-05,0.000265858900075469,0.000102193040081824,6.28803463289412e-06,6.51580862583102e-06,5.66599766449937e-06,0.000267939701951846,1.59156782157526e-10,0.000145728403389418,0.000847365420286311,3.61899389968904e-06,8.69950035043263e-06,0.000706611901172363,6.19603408315112e-07,2.71218641405788e-06,7.888623565738e-05,8.26951440842826e-06,0.000529540213607539,0.000148082778791014,0.00074734304081086,5.19706796179867e-07,0.000353878046224953,1.24500238755784e-05,0.000891044306328454,5.54303979540216e-05,0.000479639189636744,1.0518915566573e-05,0.000954119287409499,0.000123917545606809,0.000795636272940299,1.99671390031227e-07,0.000130509170030996,9.55527630755489e-08,6.75108918555315e-05,1.07051876592959e-09,1.81675189324135e-05,0.00046157710608002,0.000780106712974,6.47957229693736e-05,0.000523886660699931,0.000626583220104409,0.000458675846051271,0.000629437816103955,7.14687680857572e-05,1.37454725079706e-06,6.05081186233091e-05,2.6796922050684e-05,5.3809802839627e-05,2.7430809042367e-05,0.000216716399855232,1.14314487843548e-06,0.000200902781072128,7.22358438771058e-06,4.02298235469466e-05,9.8723780814306e-05,0.000494508796434781,0.000740156527179016,0.000271047337354719,0.000642007239283946,0.000402473171120244,0.000224374619461338,0.000820505978268635,4.23620902742595e-06,5.49150231008474e-06,0.000648187825867688,0.000114457228082716,2.73352395625228e-05,1.94754467669198e-07,1.24244973209931e-09,5.93784686624218e-05,4.86150003357769e-05,0.000520299895562504,0.000714981215419931,0.0001138840004573,0.000129974472636627,7.952459655664e-05,0.000259187895977985,0.000649910465274422,0.000248230123521621,0.000310170121184296,3.49928779190547e-06,6.32937682342675e-06,4.09420880786401e-06,0.000195870820298987,2.77556304300923e-10,4.47239451209928e-10,0.000657487390000295,1.85787960845024e-05,5.89565931807325e-05,2.24229101199282e-08,1.14019017546185e-05,1.58590580734265e-07,0.000942932239680739,1.6374672383234e-05,1.77282887477435e-08,0.000430959184538996,6.14235230727826e-07,0.000995594311522844,3.54381898170477e-07,2.3440651431715e-08,0.000510499258818356,4.85901153282169e-05,3.78792204654953e-07,1.28701905230136e-05,0.000724921893612414,1.27784969061368e-05,0.000311560812168015,0.000155467079817356,7.10033957157202e-05,0.000224230217993481,0.000631402933732216,0.0002364744108004,0.000119719453075303,0.000619506700128569,0.000501828340226662,2.28101854276538e-07,5.5447483475211e-06,5.78599294996723e-12,0.000309722594880904,7.01282302535781e-09,1.44518607312501e-05,3.68025484762822e-05,4.90665596629135e-10,7.23281738903217e-06,0.000104118321024774,1.91743379462934e-05,0.00092458611882249,0.000353202222566548,0.000675343084339991,0.000556493506071895,0.000665803454558759,0.000909975072210916,0.000325871353285863,3.54398653433033e-08,7.88981373190331e-07,0.000691421540479245,1.48642524309604e-05,0.000384025093504278,0.00049096427507984,0.000136391652328384,0.000151902118665533,0.00058523103387904,8.50179681633417e-07,0.000350150683367532,0.000554168177742069,1.76497156747697e-05,2.46729104932882e-06,2.3174920527265e-06,0.0002274183862656,6.79770583267984e-05,0.000203460058496422,3.96795026625906e-07,3.96795026625906e-07,3.96795026625906e-07,7.18024943863337e-05,0.000394498440997633,0.000161753367929338,5.09434666669217e-06,0.000201005693803495,0.000927207374134571,0.000771615476098562,0.000635849211045955,0.000301501815962601,0.00053008957073821,0.000936075735920858,4.19385405010323e-10,7.01242046899225e-05,0.000855664047982742,0.00059285324571453,0.000643612853177375,0.000593052750174062,0.000662667361601936,0.000232168184754627,0.00059285324571453,0.000425692204993615,0.000396039162546438,0.00059285324571453,0.000683689708600243,8.29859102571468e-07,0.000683215071067102,0.000117133005960365,0.00090758394665454,0.000468828537118202,0.000754205808787708,0.00059285324571453,0.000120024317316779,3.99980308580414e-05,0.000525440077322016,0.000530823236470852,0.000984966033281476,0.000207802999076427,0.000657772827262054,0.000739977279399225,0.000583849386245261,0.00102216035453099,0.00102216035453099,0.00102216035453099,0.00102216035453099,0.00102216035453099,0.00102216035453099,0.00102216035453099,0.00102216035453099,0.000406492993964946,0.000759095632741938,0.000818247800606237,0.000842505830339327,3.11922982202878e-06,0.000981164368784479,0.000482460333582772,0.000828002871052039,0.000309070545995838,0.000925114544562347,0.000526315411941906,0.000723703950695733,0.000254998441086337,0.000567364709948619,5.32106572302852e-05,0.000277068530951256,2.12354031094269e-05,0.000192080897165493],[7.55299951439677e-14,5.87693856100144e-14,7.14056772703022e-11,5.87693856100144e-14,6.92904201804863e-14,8.96339250754381e-06,1.87859570520328e-13,1.01972237078222e-08,0.0042681597902514,4.66303885236366e-07,7.08245710090998e-05,9.12822459248378e-08,2.12435986891899e-05,1.14409555874806e-05,7.12620791999144e-06,1.50257563980068e-11,1.14409555874806e-05,0.0227894474334904,1.15966713317272e-06,0.00224580785846652,1.38571155897024e-06,5.59545390611427e-05,0.000130521715764983,0.00125505365946687,0.00885114421447714,5.86338532048596e-06,0.00107540185893457,0.0147969460957979,7.15816446453866e-06,5.86338532048596e-06,0.000830612089424444,0.00685334228927601,6.239411575344e-07,6.239411575344e-07,0.00483451653898244,4.02907699971974e-05,4.60261333813958e-12,0.0164542357551164,0.00761226052823632,0.0366197856798302,2.64305833537491e-06,0.0336386148192368,0.0329511690827777,3.22882194060062e-07,8.84039694293474e-05,1.20900209654355e-05,5.87693856100144e-14,0.0355612000937706,0.000126115484937767,0.00421286037913374,0.000126115484937767,0.0019812397038189,1.13106745477689e-10,4.31008888416604e-05,0.00586634062419494,0.000241985550847478,0.000279998396593636,4.3948811451875e-05,1.46048725498475e-09,0.0192877841729588,0.000142763985256109,0.0182376824926357,0.000510584804797464,0.00454409890622139,0.00646027644697118,6.4367152615182e-05,0.000546895398673379,0.024536287082172,3.29172870143195e-11,5.51844392385968e-05,0.000279998396593636,0.0479693495076037,0.00134993500775101,0.00163113898460913,7.15816446453866e-06,0.00685334228927601,0.0366316747631873,0.0293434872799893,0.0025820199330444,0.0129636750629104,0.0149987743418081,0.00369554878675632,0.0201761980885399,0.00960680507762745,0.00098112074142714,0.00099938786828404,0.000897383173580655,0.0202287533530588,1.44942092051082e-07,0.012791617866188,0.0442543424336625,0.000620380707204342,0.00125505365946687,0.0391484487147624,0.000132768253861169,0.000493990852990467,0.00761226052823632,0.00121712216611321,0.0334832267472588,0.0129204441303225,0.0404815444150745,0.000120200757573601,0.0250308592793388,0.0017114084706703,0.0462042939057363,0.00593879653373565,0.0320588194137477,0.0014880691137916,0.0479693495076037,0.0111456947965235,0.0423110077847193,5.5950227387404e-05,0.0115954214422051,3.09399846838627e-05,0.00685334228927601,6.239411575344e-07,0.00230190363794954,0.0311372222809814,0.0416371242298321,0.00669601758430314,0.0334832267472588,0.0369484825197274,0.0310854221061073,0.0369484825197274,0.00702170567586086,0.000267047039884854,0.0063429050105053,0.0032538162600043,0.00585121371027019,0.00327618293898631,0.0174462688524342,0.000228174849639498,0.0164542357551164,0.00107540185893457,0.00454409890622139,0.00934093643016398,0.0326040166192362,0.0402418684982293,0.020357890477297,0.037214614617649,0.0279258884590146,0.0178653692905528,0.0433173645266387,0.000709491974007167,0.00088782997990912,0.0372828558642268,0.0105554194328687,0.00327618293898631,5.56424970276055e-05,6.96297501785348e-07,0.00626959178898658,0.00536643310524701,0.0334832267472588,0.0394620882192569,0.0105554194328687,0.0115954214422051,0.00762337431859738,0.019772915352331,0.0372828558642268,0.019239154945923,0.0226987629705008,0.000607001457331602,0.00098112074142714,0.000693682750457983,0.0163087641290088,2.3789840646875e-07,3.25836302178993e-07,0.0374390932267008,0.00233372101506279,0.00626959178898658,8.83038441506688e-06,0.00159747221602448,4.71596602424281e-05,0.0477064780013474,0.00213031563657234,7.17552487064917e-06,0.0293434872799893,0.000132768253861169,0.0494813904513987,8.90292868662417e-05,8.96339250754381e-06,0.0332075209832244,0.00536643310524701,9.32532311768722e-05,0.00173640320472992,0.0397099132023552,0.00173640320472992,0.0226987629705008,0.0133253577648159,0.00702170567586086,0.0178653692905528,0.0369484825197274,0.0184260355068055,0.0108625734634956,0.0366944395429812,0.0329375709254175,6.15494836789526e-05,0.00088782997990912,6.48520794415173e-09,0.0226987629705008,3.40612814341629e-06,0.00193190883224812,0.0042681597902514,3.40451828975387e-07,0.00107540185893457,0.00972505163879477,0.00238794254884992,0.0472389463234784,0.0250308592793388,0.0379939153742008,0.0346524225511691,0.0376024113813011,0.0468524621101953,0.023506294498655,1.20900209654355e-05,0.000164232108410804,0.0384530659019965,0.00196897292883204,0.027032027234062,0.0325174566008561,0.0120446228247084,0.0130968388821035,0.0355612000937706,0.000172055113070563,0.0250100274870015,0.0346524225511691,0.00225591234295675,0.000455074656705951,0.000432925342311254,0.0180093114471525,0.00685334228927601,0.0165621034209573,9.32532311768722e-05,9.32532311768722e-05,9.32532311768722e-05,0.00702170567586086,0.0276109408491108,0.0137830896146105,0.000834041857082827,0.0164542357551164,0.0472389463234784,0.0413353275817358,0.0370598354166024,0.0224141987775054,0.0334832267472588,0.0475245977285812,3.22882194060062e-07,0.00699849168860864,0.0445281458684162,0.0355612000937706,0.037214614617649,0.0355612000937706,0.0375709187778281,0.0182376824926357,0.0355612000937706,0.0292583071649149,0.0276109408491108,0.0355612000937706,0.0381687461456481,0.000170308126529139,0.0381687461456481,0.0107342454707452,0.0468524621101953,0.0314806479923932,0.04070197348091,0.0355612000937706,0.0108625734634956,0.00454409890622139,0.0334832267472588,0.0334832267472588,0.049150479695015,0.0168216527752368,0.0374390932267008,0.0402418684982293,0.0355612000937706,0.0494813904513987,0.0494813904513987,0.0494813904513987,0.0494813904513987,0.0494813904513987,0.0494813904513987,0.0494813904513987,0.0494813904513987,0.0280711346685461,0.0408146954416339,0.0433173645266387,0.0441588217765264,0.00054759394863592,0.0491290241153218,0.0321001347974181,0.0435553423613692,0.0226987629705008,0.0472389463234784,0.0334832267472588,0.0397099132023552,0.0195556962372053,0.0351790263347291,0.00582956756768786,0.0207034131512347,0.00260017696392823,0.0160851192678069]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>FC<\/th>\n      <th>P<\/th>\n      <th>FDR<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[1,2,3]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<p>Display heatmap of significant genes:</p>
+<pre class="r"><code>plotHeatmap(
+  object = sce,
+  features = rownames(de2)[1:50],
+  columns = complete.cases(sce$slingPseudotime_2),
+  order_columns_by = &quot;slingPseudotime_2&quot;
+)</code></pre>
+<p><img src="figure/mouse-pseudotime.Rmd/unnamed-chunk-18-1.png" width="1344" style="display: block; margin: auto;" /></p>
+<!-- ## Processing -->
+<!-- Extract slingshot data from experiment object: -->
+<!-- ```{r} -->
+<!-- sds <- SlingshotDataSet(sce) -->
+<!-- ``` -->
+<!-- Reshape column data for plotting and visualization: -->
+<!-- ```{r} -->
+<!-- dat <- colData(sce) -->
+<!-- dat <- cbind(cell = rownames(dat), dat) -->
+<!-- ids <- grep("slingPseudotime", colnames(dat), invert = TRUE) -->
+<!-- dat <- reshape2::melt(as.data.frame(dat), id.vars = ids, variable.name = "lineage", value.name = "pseudotime") -->
+<!-- dat$lineage <- gsub("slingPseudotime_", "", dat$lineage) -->
+<!-- ``` -->
+<!-- Create function to plot heatmap of genes expression values ordered by pseudotime: -->
+<!-- ```{r} -->
+<!-- plotTimeGenes <- function(x, features, columns, order_columns_by) { -->
+<!--   obj <- x[features, columns] -->
+<!--   mat <- t(scale(t(assay(obj, "reconstructed")))) -->
+<!--   mat <- mat[, order(obj[[order_columns_by]])] -->
+<!--   col <- colorRampPalette(rev(brewer.pal(5, name = "RdBu")))(100) -->
+<!--   lim <- max(abs(mat)) -->
+<!--   brk <- seq(-5, 5, length.out = 101) -->
+<!--   ann <- list( -->
+<!--     col = data.frame( -->
+<!--       Celltype  = obj$celltype, -->
+<!--       Genotype  = obj$genotype, -->
+<!--       Source    = obj$source, -->
+<!--       Cluster   = obj$cluster, -->
+<!--       row.names = colnames(obj) -->
+<!--     ), -->
+<!--     colors = list( -->
+<!--       Celltype = EmbryoCelltypeColours[unique(obj$celltype)], -->
+<!--       Genotype = EmbryoGenotypeColours[unique(obj$genotype)], -->
+<!--       Source   = EmbryoSourceColours[unique(obj$source)], -->
+<!--       Cluster  = EmbryoClusterColours[unique(obj$cluster)] -->
+<!--     ) -->
+<!--   ) -->
+<!--   plt <- pheatmap( -->
+<!--     mat = mat, -->
+<!--     color = col,  -->
+<!--     breaks = brk, -->
+<!--     scale = "none", -->
+<!--     cluster_cols = FALSE, -->
+<!--     annotation_col = ann$col, -->
+<!--     annotation_colors = ann$colors, -->
+<!--     show_colnames = FALSE, -->
+<!--   ) -->
+<!--   return(plt) -->
+<!-- } -->
+<!-- ``` -->
+<!-- ## Differential expression -->
+<!-- Evaluate the optimal number of knots: -->
+<!-- ```{r} -->
+<!-- set.seed(1001001001) -->
+<!-- aic <- evaluateK(counts = counts(sce), sds = SlingshotDataSet(sce)) -->
+<!-- ``` -->
+<!-- Identify 2000 most variable genes: -->
+<!-- ```{r} -->
+<!-- dec <- modelGeneVar(sce, block = sce$batch) -->
+<!-- hvg <- getTopHVGs(dec, n = 2000) -->
+<!-- idx <- which(rownames(sce) %in% hvg) -->
+<!-- ``` -->
+<!-- Fit the NB-GAM model to variable genes: -->
+<!-- ```{r} -->
+<!-- fit <- fitGAM( -->
+<!--   sce, -->
+<!--   conditions = sce$genotype, -->
+<!--   nknots = aic -->
+<!-- ) -->
+<!-- ``` -->
+<!-- ### Association test -->
+<!-- Test whether average gene expression is associated with pseudotime: -->
+<!-- ```{r} -->
+<!-- res <- associationTest(fit, lineages = TRUE) -->
+<!-- ``` -->
+<!-- Identify genes associated with lineage 1 pseudotime: -->
+<!-- ```{r} -->
+<!-- de1 <- subset(res, p.adjust(pvalue_1, method = "fdr") < 0.05) -->
+<!-- de1 <- de1[order(de1$waldStat_1, decreasing = TRUE), ] -->
+<!-- DT::datatable(as.data.frame(de1)) -->
+<!-- ``` -->
+<!-- Identify genes associated with lineage 2 pseudotime: -->
+<!-- ```{r} -->
+<!-- de2 <- subset(res, p.adjust(pvalue_2, method = "fdr") < 0.05) -->
+<!-- de2 <- de2[order(de2$waldStat_2, decreasing = TRUE), ] -->
+<!-- DT::datatable(as.data.frame(de2)) -->
+<!-- ``` -->
+<!-- Save results table of significant genes for downstream analysis: -->
+<!-- ```{r} -->
+<!-- metadata(sce)$associationTest <- list(slingPseudotime_1 = de1, slingPseudotime_2 = de2) -->
+<!-- ``` -->
+<!-- Plot expression of 50 most significant genes associated with lineage 1 pseudotime: -->
+<!-- ```{r fig.width = 14, fig.height = 9} -->
+<!-- plotTimeGenes(sce, features = head(rownames(de1), n = 50), columns = complete.cases(sce$slingPseudotime_1), order_columns_by = "slingPseudotime_1") -->
+<!-- ``` -->
+<!-- Plot expression of 50 most significant genes associated with lineage 2 pseudotime: -->
+<!-- ```{r fig.width = 14, fig.height = 9} -->
+<!-- plotTimeGenes(sce, features = head(rownames(de2), n = 50), columns = complete.cases(sce$slingPseudotime_2), order_columns_by = "slingPseudotime_2") -->
+<!-- ``` -->
+<!-- ### Differential start vs end test -->
+<!-- Identify differentially expressed genes between the start and end of a lineage: -->
+<!-- ```{r} -->
+<!-- res <- startVsEndTest(fit, lineages = TRUE) -->
+<!-- ``` -->
+<!-- Extract significant genes for lineage 1 pseudotime: -->
+<!-- ```{r} -->
+<!-- de1 <- subset(res, p.adjust(pvalue_lineage1, method = "fdr") < 0.05) -->
+<!-- de1 <- de1[order(de1$waldStat_lineage1, decreasing = TRUE), ] -->
+<!-- DT::datatable( -->
+<!--   as.data.frame(de1), -->
+<!--   extensions = "FixedColumns", -->
+<!--   options = list(dom = 't', scrollX = TRUE, fixedColumns = TRUE) -->
+<!-- ) -->
+<!-- ``` -->
+<!-- Extract significant genes for lineage 2 pseudotime: -->
+<!-- ```{r} -->
+<!-- de2 <- subset(res, p.adjust(pvalue_lineage2, method = "fdr") < 0.05) -->
+<!-- de2 <- de2[order(de2$waldStat_lineage2, decreasing = TRUE), ] -->
+<!-- DT::datatable(as.data.frame(de2)) -->
+<!-- ``` -->
+<!-- Save results table of significant genes for downstream analysis: -->
+<!-- ```{r} -->
+<!-- metadata(sce)$startVsEndTest <- list(slingPseudotime_1 = de1, slingPseudotime_2 = de2) -->
+<!-- ``` -->
+<!-- Plot expression of 50 most significant genes for lineage 1 pseudotime: -->
+<!-- ```{r fig.width = 14, fig.height = 9} -->
+<!-- plotTimeGenes(sce, features = head(rownames(de1), n = 50), columns = complete.cases(sce$slingPseudotime_1), order_columns_by = "slingPseudotime_1") -->
+<!-- ``` -->
+<!-- Plot expression of 50 most significant genes for lineage 2 pseudotime: -->
+<!-- ```{r fig.width = 14, fig.height = 9} -->
+<!-- plotTimeGenes(sce, features = head(rownames(de2), n = 50), columns = complete.cases(sce$slingPseudotime_2), order_columns_by = "slingPseudotime_2") -->
+<!-- ``` -->
+<!-- ### Differential end test -->
+<!-- Test differential expression between end points of lineages of a trajectory: -->
+<!-- ```{r} -->
+<!-- res <- diffEndTest(fit) -->
+<!-- res <- subset(res, p.adjust(pvalue, method = "fdr") < 0.05) -->
+<!-- res <- res[order(res$waldStat, decreasing = TRUE), ] -->
+<!-- DT::datatable(as.data.frame(res)) -->
+<!-- ``` -->
+<!-- Save results table of significant genes for downstream analysis: -->
+<!-- ```{r} -->
+<!-- metadata(sce)$diffEndTest <- res -->
+<!-- ``` -->
+<!-- Plot expression of 15 most significant genes (cells coloured by lineage): -->
+<!-- ```{r fig.width = 14, fig.height = 9} -->
+<!-- ids <- head(rownames(res), n = 15) -->
+<!-- plt <- lapply(ids, function(gene) { -->
+<!--   dat$expression <- assay(sce, "reconstructed")[gene, dat$cell] -->
+<!--   ggplot(dat, aes(pseudotime, expression, group = lineage, colour = lineage)) +  -->
+<!--     geom_point() +  -->
+<!--     scale_colour_brewer(palette = "Set1") +  -->
+<!--     geom_smooth(colour = "black", method = "loess") +  -->
+<!--     labs(title = gene, x = "Pseudotime", y = "Expression", colour = "Lineage") +  -->
+<!--     theme_bw() +  -->
+<!--     theme(aspect.ratio = 1) -->
+<!-- }) -->
+<!-- patchwork::wrap_plots(plt, nrow = 3, ncol = 5, guides = "collect") & theme(legend.position = 'bottom') -->
+<!-- ``` -->
+<!-- Plot expression of 15 most significant genes (cells coloured by genotype): -->
+<!-- ```{r fig.width = 14, fig.height = 9} -->
+<!-- ids <- head(rownames(res), n = 15) -->
+<!-- plt <- lapply(ids, function(gene) { -->
+<!--   dat$expression <- assay(sce, "reconstructed")[gene, dat$cell] -->
+<!--   ggplot(dat, aes(pseudotime, expression, group = lineage, colour = genotype)) +  -->
+<!--     geom_point() +  -->
+<!--     scale_colour_manual(values = EmbryoGenotypeColours, labels = EmbryoGenotypeLabels) +  -->
+<!--     geom_smooth(colour = "black", method = "loess") +  -->
+<!--     labs(title = gene, x = "Pseudotime", y = "Expression", colour = "Genotype") +  -->
+<!--     theme_bw() +  -->
+<!--     theme(aspect.ratio = 1) -->
+<!-- }) -->
+<!-- patchwork::wrap_plots(plt, nrow = 3, ncol = 5, guides = "collect") & theme(legend.position = 'bottom') -->
+<!-- ``` -->
+<!-- Plot expression of 15 most significant genes (cells coloured by celltype): -->
+<!-- ```{r fig.width = 14, fig.height = 9} -->
+<!-- ids <- head(rownames(res), n = 15) -->
+<!-- plt <- lapply(ids, function(gene) { -->
+<!--   dat$expression <- assay(sce, "reconstructed")[gene, dat$cell] -->
+<!--   ggplot(dat, aes(pseudotime, expression, group = lineage, colour = celltype)) +  -->
+<!--     geom_point() +  -->
+<!--     scale_colour_manual(values = EmbryoCelltypeColours) +  -->
+<!--     geom_smooth(colour = "black", method = "loess") +  -->
+<!--     labs(title = gene, x = "Pseudotime", y = "Expression", colour = "Celltype") +  -->
+<!--     theme_bw() +  -->
+<!--     theme(aspect.ratio = 1) -->
+<!-- }) -->
+<!-- patchwork::wrap_plots(plt, nrow = 3, ncol = 5, guides = "collect") & theme(legend.position = 'bottom') -->
+<!-- ``` -->
+<!-- Plot expression of 15 most significant genes (cells coloured by cluster): -->
+<!-- ```{r fig.width = 14, fig.height = 9} -->
+<!-- ids <- head(rownames(res), n = 15) -->
+<!-- plt <- lapply(ids, function(gene) { -->
+<!--   dat$expression <- assay(sce, "reconstructed")[gene, dat$cell] -->
+<!--   ggplot(dat, aes(pseudotime, expression, group = lineage, colour = cluster)) +  -->
+<!--     geom_point() +  -->
+<!--     scale_colour_manual(values = EmbryoClusterColours) +  -->
+<!--     geom_smooth(colour = "black", method = "loess") +  -->
+<!--     labs(title = gene, x = "Pseudotime", y = "Expression", colour = "Cluster") +  -->
+<!--     theme_bw() +  -->
+<!--     theme(aspect.ratio = 1) -->
+<!-- }) -->
+<!-- patchwork::wrap_plots(plt, nrow = 3, ncol = 5, guides = "collect") & theme(legend.position = 'bottom') -->
+<!-- ``` -->
+<!-- Plot expression of 15 most significant genes (cells coloured by source): -->
+<!-- ```{r fig.width = 14, fig.height = 9} -->
+<!-- ids <- head(rownames(res), n = 15) -->
+<!-- plt <- lapply(ids, function(gene) { -->
+<!--   dat$expression <- assay(sce, "reconstructed")[gene, dat$cell] -->
+<!--   ggplot(dat, aes(pseudotime, expression, group = lineage, colour = source)) +  -->
+<!--     geom_point() +  -->
+<!--     scale_colour_manual(values = EmbryoSourceColours, labels = EmbryoSourceLabels) +  -->
+<!--     geom_smooth(colour = "black", method = "loess") +  -->
+<!--     labs(title = gene, x = "Pseudotime", y = "Expression", colour = "Source") +  -->
+<!--     theme_bw() +  -->
+<!--     theme(aspect.ratio = 1) -->
+<!-- }) -->
+<!-- patchwork::wrap_plots(plt, nrow = 3, ncol = 5, guides = "collect") & theme(legend.position = 'bottom') -->
+<!-- ``` -->
+<!-- ### Differential pattern test -->
+<!-- Test differences in expression patterns between lineages: -->
+<!-- ```{r} -->
+<!-- res <- patternTest(fit) -->
+<!-- res <- subset(res, p.adjust(pvalue, method = "fdr") < 0.05) -->
+<!-- res <- res[order(res$waldStat, decreasing = TRUE), ] -->
+<!-- DT::datatable(as.data.frame(res)) -->
+<!-- ``` -->
+<!-- Save results table of significant genes for downstream analysis: -->
+<!-- ```{r} -->
+<!-- metadata(sce)$patternTest <- res -->
+<!-- ``` -->
+<!-- Plot expression of 15 most significant genes (cells coloured by lineage): -->
+<!-- ```{r fig.width = 14, fig.height = 9} -->
+<!-- ids <- head(rownames(res), n = 15) -->
+<!-- plt <- lapply(ids, function(gene) { -->
+<!--   dat$expression <- assay(sce, "reconstructed")[gene, dat$cell] -->
+<!--   ggplot(dat, aes(pseudotime, expression, group = lineage, colour = lineage)) +  -->
+<!--     geom_point() +  -->
+<!--     scale_colour_brewer(palette = "Set1") +  -->
+<!--     geom_smooth(colour = "black", method = "loess") +  -->
+<!--     labs(title = gene, x = "Pseudotime", y = "Expression", colour = "Lineage") +  -->
+<!--     theme_bw() +  -->
+<!--     theme(aspect.ratio = 1) -->
+<!-- }) -->
+<!-- patchwork::wrap_plots(plt, nrow = 3, ncol = 5, guides = "collect") & theme(legend.position = 'bottom') -->
+<!-- ``` -->
+<!-- Plot expression of 15 most significant genes (cells coloured by genotype): -->
+<!-- ```{r fig.width = 14, fig.height = 9} -->
+<!-- ids <- head(rownames(res), n = 15) -->
+<!-- plt <- lapply(ids, function(gene) { -->
+<!--   dat$expression <- assay(sce, "reconstructed")[gene, dat$cell] -->
+<!--   ggplot(dat, aes(pseudotime, expression, group = lineage, colour = genotype)) +  -->
+<!--     geom_point() +  -->
+<!--     scale_colour_manual(values = EmbryoGenotypeColours, labels = EmbryoGenotypeLabels) +  -->
+<!--     geom_smooth(colour = "black", method = "loess") +  -->
+<!--     labs(title = gene, x = "Pseudotime", y = "Expression", colour = "Genotype") +  -->
+<!--     theme_bw() +  -->
+<!--     theme(aspect.ratio = 1) -->
+<!-- }) -->
+<!-- patchwork::wrap_plots(plt, nrow = 3, ncol = 5, guides = "collect") & theme(legend.position = 'bottom') -->
+<!-- ``` -->
+<!-- Plot expression of 15 most significant genes (cells coloured by celltype): -->
+<!-- ```{r fig.width = 14, fig.height = 9} -->
+<!-- ids <- head(rownames(res), n = 15) -->
+<!-- plt <- lapply(ids, function(gene) { -->
+<!--   dat$expression <- assay(sce, "reconstructed")[gene, dat$cell] -->
+<!--   ggplot(dat, aes(pseudotime, expression, group = lineage, colour = celltype)) +  -->
+<!--     geom_point() +  -->
+<!--     scale_colour_manual(values = EmbryoCelltypeColours) +  -->
+<!--     geom_smooth(colour = "black", method = "loess") +  -->
+<!--     labs(title = gene, x = "Pseudotime", y = "Expression", colour = "Celltype") +  -->
+<!--     theme_bw() +  -->
+<!--     theme(aspect.ratio = 1) -->
+<!-- }) -->
+<!-- patchwork::wrap_plots(plt, nrow = 3, ncol = 5, guides = "collect") & theme(legend.position = 'bottom') -->
+<!-- ``` -->
+<!-- Plot expression of 15 most significant genes (cells coloured by cluster): -->
+<!-- ```{r fig.width = 14, fig.height = 9} -->
+<!-- ids <- head(rownames(res), n = 15) -->
+<!-- plt <- lapply(ids, function(gene) { -->
+<!--   dat$expression <- assay(sce, "reconstructed")[gene, dat$cell] -->
+<!--   ggplot(dat, aes(pseudotime, expression, group = lineage, colour = cluster)) +  -->
+<!--     geom_point() +  -->
+<!--     scale_colour_manual(values = EmbryoClusterColours) +  -->
+<!--     geom_smooth(colour = "black", method = "loess") +  -->
+<!--     labs(title = gene, x = "Pseudotime", y = "Expression", colour = "Cluster") +  -->
+<!--     theme_bw() +  -->
+<!--     theme(aspect.ratio = 1) -->
+<!-- }) -->
+<!-- patchwork::wrap_plots(plt, nrow = 3, ncol = 5, guides = "collect") & theme(legend.position = 'bottom') -->
+<!-- ``` -->
+<!-- Plot expression of 15 most significant genes (cells coloured by source): -->
+<!-- ```{r fig.width = 14, fig.height = 9} -->
+<!-- ids <- head(rownames(res), n = 15) -->
+<!-- plt <- lapply(ids, function(gene) { -->
+<!--   dat$expression <- assay(sce, "reconstructed")[gene, dat$cell] -->
+<!--   ggplot(dat, aes(pseudotime, expression, group = lineage, colour = source)) +  -->
+<!--     geom_point() +  -->
+<!--     scale_colour_manual(values = EmbryoSourceColours, labels = EmbryoSourceLabels) +  -->
+<!--     geom_smooth(colour = "black", method = "loess") +  -->
+<!--     labs(title = gene, x = "Pseudotime", y = "Expression", colour = "Source") +  -->
+<!--     theme_bw() +  -->
+<!--     theme(aspect.ratio = 1) -->
+<!-- }) -->
+<!-- patchwork::wrap_plots(plt, nrow = 3, ncol = 5, guides = "collect") & theme(legend.position = 'bottom') -->
+<!-- ``` -->
+<!-- ### earlyDETest -->
+<!-- Visualise the placement of the knots generated by the linear model: -->
+<!-- ```{r} -->
+<!-- plotGeneCount(curve = sds, clusters = sce$cluster, models = fit) -->
+<!-- ``` -->
+<!-- Test differences in expression around the seperation of lineages: -->
+<!-- ```{r} -->
+<!-- res <- earlyDETest(fit, knots = c(1, 3)) -->
+<!-- res <- subset(res, p.adjust(pvalue, method = "fdr") < 0.05) -->
+<!-- res <- res[order(res$waldStat, decreasing = TRUE), ] -->
+<!-- DT::datatable(as.data.frame(res)) -->
+<!-- ``` -->
+<!-- Save results table of significant genes for downstream analysis: -->
+<!-- ```{r} -->
+<!-- metadata(sce)$earlyDETest <- res -->
+<!-- ``` -->
+<!-- Plot expression of 15 most significant genes (cells coloured by lineage): -->
+<!-- ```{r fig.width = 14, fig.height = 9} -->
+<!-- ids <- head(rownames(res), n = 15) -->
+<!-- plt <- lapply(ids, function(gene) { -->
+<!--   dat$expression <- assay(sce, "reconstructed")[gene, dat$cell] -->
+<!--   ggplot(dat, aes(pseudotime, expression, group = lineage, colour = lineage)) +  -->
+<!--     geom_point() +  -->
+<!--     scale_colour_brewer(palette = "Set1") +  -->
+<!--     geom_smooth(colour = "black", method = "loess") +  -->
+<!--     labs(title = gene, x = "Pseudotime", y = "Expression", colour = "Lineage") +  -->
+<!--     theme_bw() +  -->
+<!--     theme(aspect.ratio = 1) -->
+<!-- }) -->
+<!-- patchwork::wrap_plots(plt, nrow = 3, ncol = 5, guides = "collect") & theme(legend.position = 'bottom') -->
+<!-- ``` -->
+<!-- Plot expression of 15 most significant genes (cells coloured by genotype): -->
+<!-- ```{r fig.width = 14, fig.height = 9} -->
+<!-- ids <- head(rownames(res), n = 15) -->
+<!-- plt <- lapply(ids, function(gene) { -->
+<!--   dat$expression <- assay(sce, "reconstructed")[gene, dat$cell] -->
+<!--   ggplot(dat, aes(pseudotime, expression, group = lineage, colour = genotype)) +  -->
+<!--     geom_point() +  -->
+<!--     scale_colour_manual(values = EmbryoGenotypeColours, labels = EmbryoGenotypeLabels) +  -->
+<!--     geom_smooth(colour = "black", method = "loess") +  -->
+<!--     labs(title = gene, x = "Pseudotime", y = "Expression", colour = "Genotype") +  -->
+<!--     theme_bw() +  -->
+<!--     theme(aspect.ratio = 1) -->
+<!-- }) -->
+<!-- patchwork::wrap_plots(plt, nrow = 3, ncol = 5, guides = "collect") & theme(legend.position = 'bottom') -->
+<!-- ``` -->
+<!-- Plot expression of 15 most significant genes (cells coloured by celltype): -->
+<!-- ```{r fig.width = 14, fig.height = 9} -->
+<!-- ids <- head(rownames(res), n = 15) -->
+<!-- plt <- lapply(ids, function(gene) { -->
+<!--   dat$expression <- assay(sce, "reconstructed")[gene, dat$cell] -->
+<!--   ggplot(dat, aes(pseudotime, expression, group = lineage, colour = celltype)) +  -->
+<!--     geom_point() +  -->
+<!--     scale_colour_manual(values = EmbryoCelltypeColours) +  -->
+<!--     geom_smooth(colour = "black", method = "loess") +  -->
+<!--     labs(title = gene, x = "Pseudotime", y = "Expression", colour = "Celltype") +  -->
+<!--     theme_bw() +  -->
+<!--     theme(aspect.ratio = 1) -->
+<!-- }) -->
+<!-- patchwork::wrap_plots(plt, nrow = 3, ncol = 5, guides = "collect") & theme(legend.position = 'bottom') -->
+<!-- ``` -->
+<!-- Plot expression of 15 most significant genes (cells coloured by cluster): -->
+<!-- ```{r fig.width = 14, fig.height = 9} -->
+<!-- ids <- head(rownames(res), n = 15) -->
+<!-- plt <- lapply(ids, function(gene) { -->
+<!--   dat$expression <- assay(sce, "reconstructed")[gene, dat$cell] -->
+<!--   ggplot(dat, aes(pseudotime, expression, group = lineage, colour = cluster)) +  -->
+<!--     geom_point() +  -->
+<!--     scale_colour_manual(values = EmbryoClusterColours) +  -->
+<!--     geom_smooth(colour = "black", method = "loess") +  -->
+<!--     labs(title = gene, x = "Pseudotime", y = "Expression", colour = "Cluster") +  -->
+<!--     theme_bw() +  -->
+<!--     theme(aspect.ratio = 1) -->
+<!-- }) -->
+<!-- patchwork::wrap_plots(plt, nrow = 3, ncol = 5, guides = "collect") & theme(legend.position = 'bottom') -->
+<!-- ``` -->
+<!-- Plot expression of 15 most significant genes (cells coloured by source): -->
+<!-- ```{r fig.width = 14, fig.height = 9} -->
+<!-- ids <- head(rownames(res), n = 15) -->
+<!-- plt <- lapply(ids, function(gene) { -->
+<!--   dat$expression <- assay(sce, "reconstructed")[gene, dat$cell] -->
+<!--   ggplot(dat, aes(pseudotime, expression, group = lineage, colour = source)) +  -->
+<!--     geom_point() +  -->
+<!--     scale_colour_manual(values = EmbryoSourceColours, labels = EmbryoSourceLabels) +  -->
+<!--     geom_smooth(colour = "black", method = "loess") +  -->
+<!--     labs(title = gene, x = "Pseudotime", y = "Expression", colour = "Source") +  -->
+<!--     theme_bw() +  -->
+<!--     theme(aspect.ratio = 1) -->
+<!-- }) -->
+<!-- patchwork::wrap_plots(plt, nrow = 3, ncol = 5, guides = "collect") & theme(legend.position = 'bottom') -->
+<!-- ``` -->
+<!-- ## Summary -->
+<!-- Save experiment object with tradeSeq results: -->
+<!-- ```{r} -->
+<!-- saveRDS(sce, file = "data/04-differential-analysis.rds") -->
+<!-- ``` -->
+<!-- Print session information: -->
+<!-- ```{r} -->
+<!-- sessionInfo() -->
+<!-- ``` -->
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
