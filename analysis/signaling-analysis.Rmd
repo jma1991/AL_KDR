@@ -1,0 +1,168 @@
+---
+title: "Signaling analysis"
+author: "James Ashmore"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Setup
+
+Set chunk options:
+
+```{r}
+knitr::opts_chunk$set(
+  autodep    = TRUE,
+  cache      = TRUE,
+  cache.path = "cache/signaling-analysis.Rmd/",
+  dev        = "png",
+  error      = FALSE,
+  message    = FALSE,
+  warning    = FALSE
+)
+```
+
+Import DT options:
+
+```{r}
+DT::datatable(matrix())
+```
+
+Load Bioconductor packages:
+
+```{r}
+library(scuttle)
+```
+
+Load CRAN packages:
+
+```{r}
+library(circlize)
+library(ggplot2)  
+library(hues)
+library(igraph)
+library(patchwork)
+```
+
+Load Github packages:
+
+```{r}
+library(CellChat)
+```
+
+Source user functions:
+
+```{r}
+source("code/splitByCol.R")
+```
+
+## Data
+
+Read experiment object:
+
+```{r}
+sce <- readRDS("output/04-marker-detection.rds")
+```
+
+Make feature names unique:
+
+```{r}
+rownames(sce) <- uniquifyFeatureNames(ID = rowData(sce)$gene_id, names = rowData(sce)$gene_name)
+```
+
+Make cell names unique:
+
+```{r}
+colnames(sce) <- seq_len(ncol(sce))
+```
+
+Split by batch annotation:
+
+```{r}
+sce <- splitByCol(sce, sce$batch)
+```
+
+## Processing
+
+Create CellChat object for each batch:
+
+```{r}
+fit <- lapply(sce, function(x) {
+  
+  x$cluster_integrated <- droplevels(x$cluster_integrated)
+  
+  x <- createCellChat(object = x, group.by = "cluster_integrated")
+  
+  x@DB <- CellChatDB.mouse
+  
+  x <- subsetData(x)
+  
+  x <- identifyOverExpressedGenes(x)
+  
+  x <- identifyOverExpressedInteractions(x)
+  
+  x <- projectData(x, PPI.mouse)
+  
+  x <- computeCommunProb(x)
+  
+  x <- computeCommunProbPathway(x)
+  
+  x <- aggregateNet(x)
+
+})
+```
+
+Merge CellChat objects:
+
+```{r}
+all <- mergeCellChat(fit, add.names = c("Het", "Hom"))
+```
+
+## Results
+
+### Ligand-Receptor
+
+```{r, fig.width = 7, fig.height = 7, results = "asis"}
+ids <- levels(all@idents$joint)
+
+for (i in ids) {
+  
+  cat("####", i, "\n")
+  
+  p1 <- netVisual_bubble(
+    object = all,
+    sources.use = i,
+    targets.use = ids,
+    comparison = c(1, 2),
+    max.dataset = 1,
+    title.name = "Increased signaling in Het",
+    angle.x = 45
+  )
+  
+  p2 <- netVisual_bubble(
+    object = all,
+    sources.use = 1,
+    targets.use = 1:5,
+    comparison = c(1, 2),
+    max.dataset = 2,
+    title.name = "Increased signaling in Hom",
+    angle.x = 45
+  )
+  
+  wrap_plots(p1, p2)
+  
+  cat("\n\n")
+  
+}
+```
+
+## Summary
+
+### Session
+
+Print session information:
+
+```{r}
+sessionInfo()
+```
