@@ -137,7 +137,7 @@ for (i in ids) {
     sources.use = i,
     targets.use = ids,
     comparison = c(1, 2),
-    remove.isolate = TRUE,
+    remove.isolate = FALSE,
     max.dataset = 1,
     title.name = "Increased signaling in Het",
     angle.x = 45
@@ -148,7 +148,7 @@ for (i in ids) {
     sources.use = i,
     targets.use = ids,
     comparison = c(1, 2),
-    remove.isolate = TRUE,
+    remove.isolate = FALSE,
     max.dataset = 2,
     title.name = "Increased signaling in Hom",
     angle.x = 45
