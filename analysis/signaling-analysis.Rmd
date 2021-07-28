@@ -121,7 +121,9 @@ all <- mergeCellChat(fit, add.names = c("Het", "Hom"))
 
 ## Results
 
-### Ligand-Receptor {.tabset}
+### LR {.tabset}
+
+Compare LR signaling between conditions:
 
 ```{r, fig.width = 14, fig.height = 10, results = "asis"}
 ids <- levels(all@idents$joint)
