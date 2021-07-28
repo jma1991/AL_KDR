@@ -121,9 +121,9 @@ all <- mergeCellChat(fit, add.names = c("Het", "Hom"))
 
 ## Results
 
-### Ligand-Receptor
+### Ligand-Receptor {.tabset}
 
-```{r, fig.width = 7, fig.height = 7, results = "asis"}
+```{r, fig.width = 14, fig.height = 8, results = "asis"}
 ids <- levels(all@idents$joint)
 
 for (i in ids) {
