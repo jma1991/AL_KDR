@@ -150,8 +150,10 @@ for (i in ids) {
     angle.x = 45
   )
   
-  wrap_plots(p1, p2)
+  p0 <- wrap_plots(p1, p2)
   
+  print(p0)
+
   cat("\n\n")
   
 }
