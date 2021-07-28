@@ -123,7 +123,7 @@ all <- mergeCellChat(fit, add.names = c("Het", "Hom"))
 
 ### Ligand-Receptor {.tabset}
 
-```{r, fig.width = 14, fig.height = 8, results = "asis"}
+```{r, fig.width = 14, fig.height = 10, results = "asis"}
 ids <- levels(all@idents$joint)
 
 for (i in ids) {
@@ -142,8 +142,8 @@ for (i in ids) {
   
   p2 <- netVisual_bubble(
     object = all,
-    sources.use = 1,
-    targets.use = 1:5,
+    sources.use = i,
+    targets.use = ids,
     comparison = c(1, 2),
     max.dataset = 2,
     title.name = "Increased signaling in Hom",
