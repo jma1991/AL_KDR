@@ -19,6 +19,8 @@ navbar:
           href: 04-marker-detection.html
     - text: "Analysis"
       menu:
+        - text: "Signaling analysis"
+          href: signaling-analysis.html
     - text: "Mouse Atlas"
       menu:
         - text: "Mouse integration"
