@@ -15,5 +15,9 @@ renv
 !renv
 renv/**
 !renv/activate.R
+resources/
+resources/*
 shiny
 shiny/*
+slides/
+slides/*
