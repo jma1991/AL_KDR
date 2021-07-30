@@ -12,7 +12,7 @@
 <meta name="author" content="James Ashmore" />
 
 
-<title>Dimensionality reduction</title>
+<title>Interactive data exploration</title>
 
 <script src="site_libs/header-attrs-2.9/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
@@ -424,7 +424,7 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Dimensionality reduction</h1>
+<h1 class="title toc-ignore">Interactive data exploration</h1>
 <h4 class="author">James Ashmore</h4>
 <h4 class="date">30 July, 2021</h4>
 
@@ -590,7 +590,7 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <div id="versions" class="tab-pane fade">
 
 <p>
-These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/02-reduced-dimensions.Rmd</code>) and HTML (<code>docs/02-reduced-dimensions.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/interactive.Rmd</code>) and HTML (<code>docs/interactive.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
 </p>
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
@@ -616,50 +616,16 @@ Message
 <tbody>
 <tr>
 <td>
-html
+Rmd
 </td>
 <td>
-<a href="https://rawcdn.githack.com/jma1991/AL_KDR/2a5e41b45dfaef1d0a69e943e685472b97ed25ed/docs/02-reduced-dimensions.html" target="_blank">2a5e41b</a>
-</td>
-<td>
-James Ashmore
-</td>
-<td>
-2021-07-27
-</td>
-<td>
-Build
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jma1991/AL_KDR/50daf93a916c05628af87f42afe1954fa74abede/docs/02-reduced-dimensions.html" target="_blank">50daf93</a>
+<a href="https://github.com/jma1991/AL_KDR/blob/23aff3d5cba9654622fa2ce09d796e46b62a12b7/analysis/interactive.Rmd" target="_blank">23aff3d</a>
 </td>
 <td>
 James Ashmore
 </td>
 <td>
-2021-07-27
-</td>
-<td>
-Build
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jma1991/AL_KDR/294d544f39008bbea5fd48113aa6b25cf905c3d1/docs/02-reduced-dimensions.html" target="_blank">294d544</a>
-</td>
-<td>
-James Ashmore
-</td>
-<td>
-2021-07-26
+2021-07-30
 </td>
 <td>
 Build
@@ -670,13 +636,13 @@ Build
 Rmd
 </td>
 <td>
-<a href="https://github.com/jma1991/AL_KDR/blob/740fc3f558c15e0fde968876b8988161fd2b1661/analysis/02-reduced-dimensions.Rmd" target="_blank">740fc3f</a>
+<a href="https://github.com/jma1991/AL_KDR/blob/d6b38dae6db5469a49a57af6effae191bffd9b28/analysis/interactive.Rmd" target="_blank">d6b38da</a>
 </td>
 <td>
 James Ashmore
 </td>
 <td>
-2021-07-26
+2021-07-27
 </td>
 <td>
 Build
@@ -689,219 +655,383 @@ Build
 </div>
 </div>
 </div>
-<div id="motivation" class="section level2">
-<h2>Motivation</h2>
-<p>In this document we aim to reduce the number of separate dimensions in the data by performing dimenstionality reduction.</p>
-</div>
 <div id="setup" class="section level2">
 <h2>Setup</h2>
 <p>Set chunk options:</p>
-<pre class="r"><code>knitr::opts_chunk$set(
-  autodep    = TRUE,
-  cache      = TRUE,
-  cache.path = &quot;cache/02-reduced-dimensions.Rmd/&quot;,
-  dev        = &quot;png&quot;,
-  error      = FALSE,
-  message    = FALSE,
-  warning    = FALSE
-)</code></pre>
-<p>Load Biocoductor packages:</p>
-<pre class="r"><code>library(scater)
-library(scran)
-library(scuttle)</code></pre>
+<pre class="r"><code>knitr::opts_chunk$set(eval = TRUE)</code></pre>
 <p>Load CRAN packages:</p>
-<pre class="r"><code>library(ggforce)
-library(patchwork)</code></pre>
-<p>Read experiment data:</p>
-<pre class="r"><code>sce &lt;- readRDS(&quot;output/01-batch-integration.rds&quot;)</code></pre>
+<pre class="r"><code>library(rsconnect)</code></pre>
+<p>Include Bioconductor package repositories:</p>
+<pre class="r"><code>options(repos = BiocManager::repositories())</code></pre>
+<pre><code>&#39;getOption(&quot;repos&quot;)&#39; replaces Bioconductor standard repositories, see
+&#39;?repositories&#39; for details
+
+replacement repositories:
+    CRAN: http://cran.rstudio.com/</code></pre>
+<p>Automatically answer yes to any user prompt:</p>
+<pre class="r"><code>options(needs.promptUser = FALSE)</code></pre>
+<p>Delete existing shiny directory:</p>
+<pre class="r"><code>unlink(&quot;shiny&quot;, recursive = TRUE)</code></pre>
+<p>Create shiny directory for interactive data exploration:</p>
+<pre class="r"><code>dir.create(&quot;shiny&quot;, showWarnings = FALSE, mode = &quot;0755&quot;)</code></pre>
 </div>
-<div id="pca" class="section level2">
-<h2>PCA</h2>
-<p>Cluster cells to help examine separation of clusters by principal components:</p>
-<pre class="r"><code>snn &lt;- buildSNNGraph(sce, use.dimred = &quot;corrected&quot;)
+<div id="applications" class="section level2 tabset">
+<h2 class="tabset">Applications</h2>
+<div id="sample-data" class="section level3">
+<h3>Sample data</h3>
+<p>Create iSEE directory for sample integrated data:</p>
+<pre class="r"><code>dir.create(&quot;shiny/sample&quot;, showWarnings = FALSE, mode = &quot;0755&quot;)</code></pre>
+<p>Copy sample data to iSEE directory:</p>
+<pre class="r"><code>file.copy(&quot;output/04-marker-detection.rds&quot;, &quot;shiny/sample/data.rds&quot;, overwrite = TRUE)</code></pre>
+<pre><code>[1] TRUE</code></pre>
+<p>Write code to iSEE application file:</p>
+<pre class="r r"><code># Load required packages
+library(iSEE)
+library(SingleCellExperiment)
+library(BiocSingular)
 
-com &lt;- igraph::cluster_walktrap(snn)
+# Load experiment object
+sce &lt;- readRDS(&quot;data.rds&quot;)
 
-sce$label &lt;- factor(com$membership)</code></pre>
-<div id="elbow" class="section level3">
-<h3>Elbow</h3>
-<p>Find the elbow point in the percentage of variance explained by successive PCs:</p>
-<pre class="r"><code>var &lt;- metadata(sce)$pca.info$var.explained / metadata(sce)$pca.info$var.total
+# Make feature names unique
+rownames(sce) &lt;- scuttle::uniquifyFeatureNames(rowData(sce)$gene_id, rowData(sce)$gene_name)
 
-num &lt;- RclusTool::ElbowFinder(seq_along(var), var)</code></pre>
-<p>Plot the percentage of variance explained by successive PCs:</p>
-<pre class="r"><code>dat &lt;- data.frame(index = seq_along(var), total = var)
+# Define column data variables
+sce$EGFP &lt;- counts(sce)[&quot;EGFP&quot;, ] &gt; 0
+sce$Etv2 &lt;- counts(sce)[&quot;Etv2&quot;, ] &gt; 0
+sce$Kdr &lt;- counts(sce)[&quot;Kdr&quot;, ] &gt; 0
+sce$EGFP_AND_Etv2 &lt;- sce$EGFP &amp; sce$Kdr
+sce$Etv2_AND_Kdr &lt;- sce$Etv2 &amp; sce$Kdr
 
-ggplot(dat, aes(index, total)) +
-  geom_point() +
-  geom_vline(xintercept = num, colour = &quot;red&quot;) +
-  labs(x = &quot;PC&quot;, y = &quot;Variance (%)&quot;) +
-  scale_x_continuous(n.breaks = 10, limits = c(0, NA)) +
-  scale_y_continuous(n.breaks = 10, limits = c(0, NA)) +
-  theme_minimal()</code></pre>
-<p><img src="figure/02-reduced-dimensions.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
-<div id="structure" class="section level3">
-<h3>Structure</h3>
-<p>Find the number of subpopulations in the data using clustering:</p>
-<pre class="r"><code>dim &lt;- reducedDim(sce, &quot;corrected&quot;)
+# Define column data colours
+celltype_colours &lt;- function(n) {
+  c(
+    &quot;Allantois&quot; = &quot;#532C8A&quot;,
+    &quot;Anterior Primitive Streak&quot; = &quot;#C19F70&quot;,
+    &quot;Blood progenitors 1&quot; = &quot;#D9DECF&quot;,
+    &quot;Blood progenitors 2&quot; = &quot;#C9A997&quot;,
+    &quot;Cardiomyocytes&quot; = &quot;#B51D8D&quot;,
+    &quot;Caudal epiblast&quot; = &quot;#9E6762&quot;,
+    &quot;Caudal Mesoderm&quot; = &quot;#3F84AA&quot;,
+    &quot;Caudal neurectoderm&quot; = &quot;#354E23&quot;,
+    &quot;Def. endoderm&quot; = &quot;#F397C0&quot;,
+    &quot;Endothelium&quot; = &quot;#FF891C&quot;,
+    &quot;Epiblast&quot; = &quot;#635547&quot;,
+    &quot;Erythroid1&quot; = &quot;#C72228&quot;,
+    &quot;Erythroid2&quot; = &quot;#F79083&quot;,
+    &quot;Erythroid3&quot; = &quot;#EF4E22&quot;,
+    &quot;ExE ectoderm&quot; = &quot;#989898&quot;,
+    &quot;ExE endoderm&quot; = &quot;#7F6874&quot;,
+    &quot;ExE mesoderm&quot; = &quot;#8870AD&quot;,
+    &quot;Forebrain/Midbrain/Hindbrain&quot; = &quot;#647A4F&quot;,
+    &quot;Gut&quot; = &quot;#EF5A9D&quot;,
+    &quot;Haematoendothelial progenitors&quot; = &quot;#FBBE92&quot;,
+    &quot;Intermediate mesoderm&quot; = &quot;#139992&quot;,
+    &quot;Mesenchyme&quot; = &quot;#CC7818&quot;,
+    &quot;Mixed mesoderm&quot; = &quot;#DFCDE4&quot;,
+    &quot;Nascent mesoderm&quot; = &quot;#C594BF&quot;,
+    &quot;Neural crest&quot; = &quot;#C3C388&quot;,
+    &quot;NMP&quot; = &quot;#8EC792&quot;,
+    &quot;Notochord&quot; = &quot;#0F4A9C&quot;,
+    &quot;Paraxial mesoderm&quot; = &quot;#8DB5CE&quot;,
+    &quot;Parietal endoderm&quot; = &quot;#1A1A1A&quot;,
+    &quot;PGC&quot; = &quot;#FACB12&quot;,
+    &quot;Pharyngeal mesoderm&quot; = &quot;#C9EBFB&quot;,
+    &quot;Primitive Streak&quot; = &quot;#DABE99&quot;,
+    &quot;Rostral neurectoderm&quot; = &quot;#65A83E&quot;,
+    &quot;Somitic mesoderm&quot; = &quot;#005579&quot;,
+    &quot;Spinal cord&quot; = &quot;#CDE088&quot;,
+    &quot;Surface ectoderm&quot; = &quot;#F7F79E&quot;,
+    &quot;Visceral endoderm&quot; = &quot;#F6BFCB&quot;
+  )
+}
 
-fit &lt;- getClusteredPCs(dim, min.rank = 1, max.rank = 50)
+boolean_colours &lt;- function(n) {
+  c(&quot;TRUE&quot; = &quot;#E15759&quot;, &quot;FALSE&quot; = &quot;#BAB0AC&quot;)
+}
 
-num &lt;- metadata(fit)$chosen</code></pre>
-<p>Plot the percentage of variance explained by successive PCs:</p>
-<pre class="r"><code>dat &lt;- as.data.frame(fit)
+# Set iSEE options
+iSEEOptions$set(downsample = TRUE)
+iSEEOptions$set(color.maxlevels = 37)
 
-ggplot(dat, aes(n.pcs, n.clusters)) +
-  geom_point() +
-  geom_abline(slope = 1, intercept = 1, colour = &quot;red&quot;) +
-  geom_vline(xintercept = num, colour = &quot;grey&quot;, linetype = &quot;dashed&quot;) +
-  labs(x = &quot;PC&quot;, y = &quot;Number of clusters&quot;) +
-  theme_minimal()</code></pre>
-<p><img src="figure/02-reduced-dimensions.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
-<div id="selection" class="section level3">
-<h3>Selection</h3>
-<p>Choose number of PCs to retain from the above analyses:</p>
-<pre class="r"><code>idx &lt;- seq_len(7)
-
-reducedDim(sce, &quot;corrected&quot;) &lt;- reducedDim(sce, &quot;corrected&quot;)[, idx]</code></pre>
-<p>Plot scatter matrix of retained PCs:</p>
-<pre class="r"><code>plotReducedDim(sce, &quot;corrected&quot;, colour_by = &quot;label&quot;, ncomponents = length(idx)) + theme(legend.position = &quot;none&quot;)</code></pre>
-<p><img src="figure/02-reduced-dimensions.Rmd/unnamed-chunk-11-1.png" width="960" style="display: block; margin: auto;" /></p>
-<p>Cluster cells to help examine effect of TSNE and UMAP hyper-parameters:</p>
-<pre class="r"><code>snn &lt;- buildSNNGraph(sce, use.dimred = &quot;corrected&quot;)
-
-com &lt;- igraph::cluster_walktrap(snn)
-
-sce$label &lt;- factor(com$membership)</code></pre>
-</div>
-</div>
-<div id="tsne" class="section level2">
-<h2>TSNE</h2>
-<p>Perform t-stochastic neighbour embedding (t-SNE) on the PCA data.</p>
-<div id="parameter-exploration" class="section level3">
-<h3>Parameter exploration</h3>
-<p>Inspect TSNE plots generated by different perplexity and iteration parameters:</p>
-<pre class="r"><code>lim &lt;- (ncol(sce) - 1) / 3
-
-max &lt;- ifelse(lim &lt; 50, lim, 50)
-
-per &lt;- seq(5, max, length.out = 6)
-
-itr &lt;- seq(500, 1500, length.out = 6)
-
-arg &lt;- expand.grid(
-  perplexity = floor(per),
-  max_iter = floor(itr)
+# Define iSEE colours
+ecm &lt;- ExperimentColorMap(
+  colData = list(
+    celltype = celltype_colours,
+    EGFP = boolean_colours,
+    Etv2 = boolean_colours,
+    Kdr = boolean_colours,
+    EGFP_AND_Etv2 = boolean_colours,
+    Etv2_AND_Kdr = boolean_colours
+  )
 )
 
-plt &lt;- apply(arg, 1, function(x) {
-
-  set.seed(1101000110)
-
-  run &lt;- runTSNE(sce, dimred = &quot;corrected&quot;, perplexity = x[1], max_iter = x[2])
-
-  txt &lt;- paste(x[1], x[2], sep = &quot;/&quot;)
-
-  plotTSNE(run, colour_by = &quot;label&quot;) + 
-    ggtitle(txt) + 
-    theme_no_axes() + 
-    theme(aspect.ratio = 1, axis.title = element_blank(), legend.position = &quot;none&quot;)
-
-})
-
-wrap_plots(plt, nrow = 6, ncol = 6, byrow = FALSE)</code></pre>
-<p><img src="figure/02-reduced-dimensions.Rmd/unnamed-chunk-13-1.png" width="960" style="display: block; margin: auto;" /></p>
+# Create iSEE object
+iSEE(sce, appTitle = &quot;AL_KDR&quot;, colormap = ecm)</code></pre>
+<p>Deploy the iSEE application to the shiny server:</p>
+<pre class="r"><code>deployApp(appDir = &quot;shiny/sample&quot;, appName = &quot;AL_KDR&quot;, appTitle = &quot;AL_KDR&quot;, launch.browser = FALSE, forceUpdate = TRUE)</code></pre>
+<pre><code>Preparing to deploy application...DONE
+Uploading bundle for application: 4440344...DONE
+Deploying bundle: 4872349 for application: 4440344 ...
+Waiting for task: 981648078
+  building: Processing bundle: 4872349
+  building: Parsing manifest
+  building: Building image: 5584599
+  building: Installing system dependencies
+  building: Fetching packages
+  building: Installing packages
+  building: Installing files
+  building: Pushing image: 5584599
+  deploying: Starting instances
+  rollforward: Activating new instances
+  unstaging: Stopping old instances
+Application successfully deployed to https://jashmore.shinyapps.io/AL_KDR/</code></pre>
+<p>Allocate more memory to the iSEE application:</p>
+<pre class="r"><code>configureApp(appName = &quot;AL_KDR&quot;, appDir = &quot;shiny/sample&quot;, size = &quot;xlarge&quot;)</code></pre>
+<pre><code>Preparing to deploy application...DONE
+Waiting for task: 981649306
+  deploying: Starting instances
+  rollforward: Activating new instances
+  terminating: Stopping old instances
+Application successfully deployed to https://jashmore.shinyapps.io/AL_KDR/</code></pre>
 </div>
-<div id="calculate-tsne" class="section level3">
-<h3>Calculate TSNE</h3>
-<p>Select optimal perplexity value and number of iterations:</p>
-<pre class="r"><code>set.seed(1101000110)
+<div id="endothelium-data" class="section level3">
+<h3>Endothelium data</h3>
+<p>Create iSEE directory for endothelium trajectory data:</p>
+<pre class="r"><code>dir.create(&quot;shiny/endothelium&quot;, showWarnings = FALSE, mode = &quot;0755&quot;)</code></pre>
+<p>Copy endothelium trajectory data to iSEE directory:</p>
+<pre class="r"><code>file.copy(&quot;output/mouse-trajectory-endothelium.rds&quot;, &quot;shiny/endothelium/data.rds&quot;, overwrite = TRUE)</code></pre>
+<pre><code>[1] TRUE</code></pre>
+<p>Write code to iSEE application file:</p>
+<pre class="r r"><code># Load required packages
+library(iSEE)
+library(SingleCellExperiment)
+library(BiocSingular)
 
-sce &lt;- runTSNE(sce, dimred = &quot;corrected&quot;, perplexity = 23, max_iter = 1500)</code></pre>
-</div>
-</div>
-<div id="umap" class="section level2">
-<h2>UMAP</h2>
-<p>Perform uniform manifold approximation and projection (UMAP) on the PCA data.</p>
-<div id="parameter-exploration-1" class="section level3">
-<h3>Parameter exploration</h3>
-<p>Inspect UMAP plots generated by different neighbors and distance parameters:</p>
-<pre class="r"><code>max &lt;- ifelse(ncol(sce) &lt; 100, ncol(sce), 100)
+# Load experiment object
+sce &lt;- readRDS(&quot;data.rds&quot;)
 
-num &lt;- seq(2, max, length.out = 6)
+# Make feature names unique
+rownames(sce) &lt;- scuttle::uniquifyFeatureNames(rowData(sce)$gene_id, rowData(sce)$gene_name)
 
-dst &lt;- seq(0, 1, length.out = 6)
+# Define column data variables
+sce$EGFP &lt;- counts(sce)[&quot;EGFP&quot;, ] &gt; 0
+sce$Etv2 &lt;- counts(sce)[&quot;Etv2&quot;, ] &gt; 0
+sce$Kdr &lt;- counts(sce)[&quot;Kdr&quot;, ] &gt; 0
+sce$EGFP_AND_Etv2 &lt;- sce$EGFP &amp; sce$Kdr
+sce$Etv2_AND_Kdr &lt;- sce$Etv2 &amp; sce$Kdr
 
-arg &lt;- expand.grid(
-  n_neighbors = floor(num),
-  min_dist = signif(dst, digits = 2)
+# Define column data colours
+celltype_colours &lt;- function(n) {
+  c(
+    &quot;Allantois&quot; = &quot;#532C8A&quot;,
+    &quot;Anterior Primitive Streak&quot; = &quot;#C19F70&quot;,
+    &quot;Blood progenitors 1&quot; = &quot;#D9DECF&quot;,
+    &quot;Blood progenitors 2&quot; = &quot;#C9A997&quot;,
+    &quot;Cardiomyocytes&quot; = &quot;#B51D8D&quot;,
+    &quot;Caudal epiblast&quot; = &quot;#9E6762&quot;,
+    &quot;Caudal Mesoderm&quot; = &quot;#3F84AA&quot;,
+    &quot;Caudal neurectoderm&quot; = &quot;#354E23&quot;,
+    &quot;Def. endoderm&quot; = &quot;#F397C0&quot;,
+    &quot;Endothelium&quot; = &quot;#FF891C&quot;,
+    &quot;Epiblast&quot; = &quot;#635547&quot;,
+    &quot;Erythroid1&quot; = &quot;#C72228&quot;,
+    &quot;Erythroid2&quot; = &quot;#F79083&quot;,
+    &quot;Erythroid3&quot; = &quot;#EF4E22&quot;,
+    &quot;ExE ectoderm&quot; = &quot;#989898&quot;,
+    &quot;ExE endoderm&quot; = &quot;#7F6874&quot;,
+    &quot;ExE mesoderm&quot; = &quot;#8870AD&quot;,
+    &quot;Forebrain/Midbrain/Hindbrain&quot; = &quot;#647A4F&quot;,
+    &quot;Gut&quot; = &quot;#EF5A9D&quot;,
+    &quot;Haematoendothelial progenitors&quot; = &quot;#FBBE92&quot;,
+    &quot;Intermediate mesoderm&quot; = &quot;#139992&quot;,
+    &quot;Mesenchyme&quot; = &quot;#CC7818&quot;,
+    &quot;Mixed mesoderm&quot; = &quot;#DFCDE4&quot;,
+    &quot;Nascent mesoderm&quot; = &quot;#C594BF&quot;,
+    &quot;Neural crest&quot; = &quot;#C3C388&quot;,
+    &quot;NMP&quot; = &quot;#8EC792&quot;,
+    &quot;Notochord&quot; = &quot;#0F4A9C&quot;,
+    &quot;Paraxial mesoderm&quot; = &quot;#8DB5CE&quot;,
+    &quot;Parietal endoderm&quot; = &quot;#1A1A1A&quot;,
+    &quot;PGC&quot; = &quot;#FACB12&quot;,
+    &quot;Pharyngeal mesoderm&quot; = &quot;#C9EBFB&quot;,
+    &quot;Primitive Streak&quot; = &quot;#DABE99&quot;,
+    &quot;Rostral neurectoderm&quot; = &quot;#65A83E&quot;,
+    &quot;Somitic mesoderm&quot; = &quot;#005579&quot;,
+    &quot;Spinal cord&quot; = &quot;#CDE088&quot;,
+    &quot;Surface ectoderm&quot; = &quot;#F7F79E&quot;,
+    &quot;Visceral endoderm&quot; = &quot;#F6BFCB&quot;
+  )
+}
+
+boolean_colours &lt;- function(n) {
+  c(&quot;TRUE&quot; = &quot;#E15759&quot;, &quot;FALSE&quot; = &quot;#BAB0AC&quot;)
+}
+
+# Set iSEE options
+iSEEOptions$set(downsample = TRUE)
+iSEEOptions$set(color.maxlevels = 37)
+
+# Define iSEE colours
+ecm &lt;- ExperimentColorMap(
+  colData = list(
+    celltype = celltype_colours,
+    EGFP = boolean_colours,
+    Etv2 = boolean_colours,
+    Kdr = boolean_colours,
+    EGFP_AND_Etv2 = boolean_colours,
+    Etv2_AND_Kdr = boolean_colours
+  )
 )
 
-plt &lt;- apply(arg, 1, function(x) {
-
-  set.seed(0000100110)
-
-  run &lt;- runUMAP(sce, dimred = &quot;corrected&quot;, n_neighbors = x[1], min_dist = x[2])
-
-  txt &lt;- paste(x[1], x[2], sep = &quot;/&quot;)
-
-  plotUMAP(run, colour_by = &quot;label&quot;) + 
-    ggtitle(txt) + 
-    theme_no_axes() + 
-    theme(aspect.ratio = 1, axis.title = element_blank(), legend.position = &quot;none&quot;)
-
-})
-
-wrap_plots(plt, nrow = 6, ncol = 6, byrow = FALSE)</code></pre>
-<p><img src="figure/02-reduced-dimensions.Rmd/unnamed-chunk-15-1.png" width="960" style="display: block; margin: auto;" /></p>
+# Create iSEE object
+iSEE(sce, appTitle = &quot;AL_KDR_ENDO&quot;, colormap = ecm)</code></pre>
+<p>Deploy the iSEE application to the shiny server:</p>
+<pre class="r"><code>deployApp(appDir = &quot;shiny/endothelium&quot;, appName = &quot;AL_KDR_ENDO&quot;, appTitle = &quot;AL_KDR_ENDO&quot;, launch.browser = FALSE, forceUpdate = TRUE)</code></pre>
+<pre><code>Preparing to deploy application...DONE
+Uploading bundle for application: 4440351...DONE
+Deploying bundle: 4872360 for application: 4440351 ...
+Waiting for task: 981650108
+  building: Parsing manifest
+  building: Building image: 5584612
+  building: Installing system dependencies
+  building: Fetching packages
+  building: Installing packages
+  building: Installing files
+  building: Pushing image: 5584612
+  deploying: Starting instances
+  rollforward: Activating new instances
+  success: Stopping old instances
+Application successfully deployed to https://jashmore.shinyapps.io/AL_KDR_ENDO/</code></pre>
+<p>Allocate more memory to the iSEE application:</p>
+<pre class="r"><code>configureApp(appName = &quot;AL_KDR_ENDO&quot;, appDir = &quot;shiny/endothelium&quot;, size = &quot;xlarge&quot;)</code></pre>
+<pre><code>Preparing to deploy application...DONE
+Waiting for task: 981651267
+  deploying: Starting instances
+  rollforward: Activating new instances
+  terminating: Stopping old instances
+Application successfully deployed to https://jashmore.shinyapps.io/AL_KDR_ENDO/</code></pre>
 </div>
-<div id="calculate-umap" class="section level3">
-<h3>Calculate UMAP</h3>
-<p>Select optimal number of nearest neighbors:</p>
-<pre class="r"><code>set.seed(0000100110)
+<div id="cardiomyocytes-data" class="section level3">
+<h3>Cardiomyocytes data</h3>
+<p>Create iSEE directory for cardiomyocytes trajectory data:</p>
+<pre class="r"><code>dir.create(&quot;shiny/cardiomyocytes&quot;, showWarnings = FALSE, mode = &quot;0755&quot;)</code></pre>
+<p>Copy cardiomyocytes trajectory data to iSEE directory:</p>
+<pre class="r"><code>file.copy(&quot;output/mouse-trajectory-cardiomyocytes.rds&quot;, &quot;shiny/cardiomyocytes/data.rds&quot;, overwrite = TRUE)</code></pre>
+<pre><code>[1] TRUE</code></pre>
+<p>Write code to iSEE application file:</p>
+<pre class="r r"><code># Load required packages
+library(iSEE)
+library(SingleCellExperiment)
+library(BiocSingular)
 
-sce &lt;- runUMAP(sce, dimred = &quot;corrected&quot;, n_neighbors = 21, min_dist = 0.6)</code></pre>
-</div>
-</div>
-<div id="variables" class="section level2 tabset">
-<h2 class="tabset">Variables</h2>
-<div id="pca-1" class="section level3">
-<h3>PCA</h3>
-<pre class="r"><code>var &lt;- c(&quot;sum&quot;, &quot;detected&quot;, &quot;subsets_MT_percent&quot;, &quot;subsets_EGFP_percent&quot;)
+# Load experiment object
+sce &lt;- readRDS(&quot;data.rds&quot;)
 
-plt &lt;- lapply(var, function(x) plotReducedDim(sce, &quot;corrected&quot;, colour_by = x) + theme_no_axes() + coord_fixed(1))
+# Make feature names unique
+rownames(sce) &lt;- scuttle::uniquifyFeatureNames(rowData(sce)$gene_id, rowData(sce)$gene_name)
 
-patchwork::wrap_plots(plt, ncol = 2)</code></pre>
-<p><img src="figure/02-reduced-dimensions.Rmd/unnamed-chunk-17-1.png" width="960" style="display: block; margin: auto;" /></p>
-</div>
-<div id="tsne-1" class="section level3">
-<h3>TSNE</h3>
-<pre class="r"><code>var &lt;- c(&quot;sum&quot;, &quot;detected&quot;, &quot;subsets_MT_percent&quot;, &quot;subsets_EGFP_percent&quot;)
+# Define column data variables
+sce$EGFP &lt;- counts(sce)[&quot;EGFP&quot;, ] &gt; 0
+sce$Etv2 &lt;- counts(sce)[&quot;Etv2&quot;, ] &gt; 0
+sce$Kdr &lt;- counts(sce)[&quot;Kdr&quot;, ] &gt; 0
+sce$EGFP_AND_Etv2 &lt;- sce$EGFP &amp; sce$Kdr
+sce$Etv2_AND_Kdr &lt;- sce$Etv2 &amp; sce$Kdr
 
-plt &lt;- lapply(var, function(x) plotTSNE(sce, colour_by = x) + theme_no_axes() + theme(aspect.ratio = 1))
+# Define column data colours
+celltype_colours &lt;- function(n) {
+  c(
+    &quot;Allantois&quot; = &quot;#532C8A&quot;,
+    &quot;Anterior Primitive Streak&quot; = &quot;#C19F70&quot;,
+    &quot;Blood progenitors 1&quot; = &quot;#D9DECF&quot;,
+    &quot;Blood progenitors 2&quot; = &quot;#C9A997&quot;,
+    &quot;Cardiomyocytes&quot; = &quot;#B51D8D&quot;,
+    &quot;Caudal epiblast&quot; = &quot;#9E6762&quot;,
+    &quot;Caudal Mesoderm&quot; = &quot;#3F84AA&quot;,
+    &quot;Caudal neurectoderm&quot; = &quot;#354E23&quot;,
+    &quot;Def. endoderm&quot; = &quot;#F397C0&quot;,
+    &quot;Endothelium&quot; = &quot;#FF891C&quot;,
+    &quot;Epiblast&quot; = &quot;#635547&quot;,
+    &quot;Erythroid1&quot; = &quot;#C72228&quot;,
+    &quot;Erythroid2&quot; = &quot;#F79083&quot;,
+    &quot;Erythroid3&quot; = &quot;#EF4E22&quot;,
+    &quot;ExE ectoderm&quot; = &quot;#989898&quot;,
+    &quot;ExE endoderm&quot; = &quot;#7F6874&quot;,
+    &quot;ExE mesoderm&quot; = &quot;#8870AD&quot;,
+    &quot;Forebrain/Midbrain/Hindbrain&quot; = &quot;#647A4F&quot;,
+    &quot;Gut&quot; = &quot;#EF5A9D&quot;,
+    &quot;Haematoendothelial progenitors&quot; = &quot;#FBBE92&quot;,
+    &quot;Intermediate mesoderm&quot; = &quot;#139992&quot;,
+    &quot;Mesenchyme&quot; = &quot;#CC7818&quot;,
+    &quot;Mixed mesoderm&quot; = &quot;#DFCDE4&quot;,
+    &quot;Nascent mesoderm&quot; = &quot;#C594BF&quot;,
+    &quot;Neural crest&quot; = &quot;#C3C388&quot;,
+    &quot;NMP&quot; = &quot;#8EC792&quot;,
+    &quot;Notochord&quot; = &quot;#0F4A9C&quot;,
+    &quot;Paraxial mesoderm&quot; = &quot;#8DB5CE&quot;,
+    &quot;Parietal endoderm&quot; = &quot;#1A1A1A&quot;,
+    &quot;PGC&quot; = &quot;#FACB12&quot;,
+    &quot;Pharyngeal mesoderm&quot; = &quot;#C9EBFB&quot;,
+    &quot;Primitive Streak&quot; = &quot;#DABE99&quot;,
+    &quot;Rostral neurectoderm&quot; = &quot;#65A83E&quot;,
+    &quot;Somitic mesoderm&quot; = &quot;#005579&quot;,
+    &quot;Spinal cord&quot; = &quot;#CDE088&quot;,
+    &quot;Surface ectoderm&quot; = &quot;#F7F79E&quot;,
+    &quot;Visceral endoderm&quot; = &quot;#F6BFCB&quot;
+  )
+}
 
-patchwork::wrap_plots(plt, ncol = 2)</code></pre>
-<p><img src="figure/02-reduced-dimensions.Rmd/unnamed-chunk-18-1.png" width="960" style="display: block; margin: auto;" /></p>
-</div>
-<div id="umap-1" class="section level3">
-<h3>UMAP</h3>
-<pre class="r"><code>var &lt;- c(&quot;sum&quot;, &quot;detected&quot;, &quot;subsets_MT_percent&quot;, &quot;subsets_EGFP_percent&quot;)
+boolean_colours &lt;- function(n) {
+  c(&quot;TRUE&quot; = &quot;#E15759&quot;, &quot;FALSE&quot; = &quot;#BAB0AC&quot;)
+}
 
-plt &lt;- lapply(var, function(x) plotUMAP(sce, colour_by = x) + theme_no_axes() + theme(aspect.ratio = 1))
+# Set iSEE options
+iSEEOptions$set(downsample = TRUE)
+iSEEOptions$set(color.maxlevels = 37)
 
-patchwork::wrap_plots(plt, ncol = 2)</code></pre>
-<p><img src="figure/02-reduced-dimensions.Rmd/unnamed-chunk-19-1.png" width="960" style="display: block; margin: auto;" /></p>
+# Define iSEE colours
+ecm &lt;- ExperimentColorMap(
+  colData = list(
+    celltype = celltype_colours,
+    EGFP = boolean_colours,
+    Etv2 = boolean_colours,
+    Kdr = boolean_colours,
+    EGFP_AND_Etv2 = boolean_colours,
+    Etv2_AND_Kdr = boolean_colours
+  )
+)
+
+# Create iSEE object
+iSEE(sce, appTitle = &quot;AL_KDR_CARDIO&quot;, colormap = ecm)</code></pre>
+<p>Deploy the iSEE application to the shiny server:</p>
+<pre class="r"><code>deployApp(appDir = &quot;shiny/cardiomyocytes&quot;, appName = &quot;AL_KDR_CARDIO&quot;, appTitle = &quot;AL_KDR_CARDIO&quot;, launch.browser = FALSE, forceUpdate = TRUE)</code></pre>
+<pre><code>Preparing to deploy application...DONE
+Uploading bundle for application: 4440361...DONE
+Deploying bundle: 4872370 for application: 4440361 ...
+Waiting for task: 981651859
+  building: Parsing manifest
+  building: Building image: 5584627
+  building: Installing system dependencies
+  building: Fetching packages
+  building: Installing packages
+  building: Installing files
+  building: Pushing image: 5584627
+  deploying: Starting instances
+  rollforward: Activating new instances
+  success: Stopping old instances
+Application successfully deployed to https://jashmore.shinyapps.io/AL_KDR_CARDIO/</code></pre>
+<p>Allocate more memory to the iSEE application:</p>
+<pre class="r"><code>configureApp(appName = &quot;AL_KDR_CARDIO&quot;, appDir = &quot;shiny/cardiomyocytes&quot;, size = &quot;xlarge&quot;)</code></pre>
+<pre><code>Preparing to deploy application...DONE
+Waiting for task: 981653319
+  deploying: Starting instances
+  rollforward: Activating new instances
+  terminating: Stopping old instances
+Application successfully deployed to https://jashmore.shinyapps.io/AL_KDR_CARDIO/</code></pre>
 </div>
 </div>
 <div id="summary" class="section level2">
 <h2>Summary</h2>
-<div id="output" class="section level3">
-<h3>Output</h3>
-<p>Save experiment object to disk:</p>
-<pre class="r"><code>saveRDS(sce, file = &quot;output/02-reduced-dimensions.rds&quot;)</code></pre>
-</div>
 <div id="session" class="section level3">
 <h3>Session</h3>
 <p>Print session information:</p>
@@ -918,80 +1048,26 @@ locale:
 [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8
 
 attached base packages:
-[1] parallel  stats4    stats     graphics  grDevices utils     datasets 
-[8] methods   base     
+[1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] patchwork_1.1.1             ggforce_0.3.3              
- [3] scuttle_1.0.4               scran_1.18.7               
- [5] scater_1.18.6               ggplot2_3.3.5              
- [7] SingleCellExperiment_1.12.0 SummarizedExperiment_1.20.0
- [9] Biobase_2.50.0              GenomicRanges_1.42.0       
-[11] GenomeInfoDb_1.26.7         IRanges_2.24.1             
-[13] S4Vectors_0.28.1            BiocGenerics_0.36.1        
-[15] MatrixGenerics_1.2.1        matrixStats_0.59.0         
-[17] workflowr_1.6.2            
+[1] rsconnect_0.8.18 workflowr_1.6.2 
 
 loaded via a namespace (and not attached):
-  [1] Rtsne_0.15                ggbeeswarm_0.6.0         
-  [3] colorspace_2.0-2          ellipsis_0.3.2           
-  [5] class_7.3-19              mclust_5.4.7             
-  [7] rprojroot_2.0.2           bluster_1.0.0            
-  [9] XVector_0.30.0            BiocNeighbors_1.8.2      
- [11] fs_1.5.0                  proxy_0.4-26             
- [13] farver_2.1.0              DT_0.18                  
- [15] ggrepel_0.9.1             RSpectra_0.16-0          
- [17] fansi_0.5.0               codetools_0.2-18         
- [19] leaps_3.1                 sparseMatrixStats_1.2.1  
- [21] knitr_1.33                mmand_1.6.1              
- [23] polyclip_1.10-0           jsonlite_1.7.2           
- [25] mda_0.5-2                 cluster_2.1.2            
- [27] png_0.1-7                 uwot_0.1.10              
- [29] compiler_4.0.2            dqrng_0.3.0              
- [31] assertthat_0.2.1          Matrix_1.3-4             
- [33] limma_3.46.0              later_1.2.0              
- [35] tweenr_1.0.2              BiocSingular_1.6.0       
- [37] tcltk2_1.2-11             htmltools_0.5.1.1        
- [39] tools_4.0.2               rsvd_1.0.5               
- [41] igraph_1.2.6              gtable_0.3.0             
- [43] glue_1.4.2                GenomeInfoDbData_1.2.4   
- [45] dplyr_1.0.7               FactoMineR_2.4           
- [47] Rcpp_1.0.7                jquerylib_0.1.4          
- [49] vctrs_0.3.8               DelayedMatrixStats_1.12.3
- [51] xfun_0.24                 stringr_1.4.0            
- [53] beachmat_2.6.4            tkrplot_0.0-25           
- [55] lifecycle_1.0.0           irlba_2.3.3              
- [57] statmod_1.4.36            factoextra_1.0.7         
- [59] edgeR_3.32.1              zlibbioc_1.36.0          
- [61] MASS_7.3-54               scales_1.1.1             
- [63] conclust_1.1              promises_1.2.0.1         
- [65] yaml_2.2.1                gridExtra_2.3            
- [67] sass_0.4.0                reshape_0.8.8            
- [69] stringi_1.6.2             highr_0.9                
- [71] randomForest_4.6-14       corrplot_0.90            
- [73] RclusTool_0.91.3          e1071_1.7-7              
- [75] BiocParallel_1.24.1       rlang_0.4.11             
- [77] pkgconfig_2.0.3           bitops_1.0-7             
- [79] evaluate_0.14             lattice_0.20-44          
- [81] purrr_0.3.4               labeling_0.4.2           
- [83] htmlwidgets_1.5.3         cowplot_1.1.1            
- [85] tidyselect_1.1.1          plyr_1.8.6               
- [87] magrittr_2.0.1            R6_2.5.0                 
- [89] generics_0.1.0            DelayedArray_0.16.3      
- [91] DBI_1.1.1                 pillar_1.6.1             
- [93] whisker_0.4               withr_2.4.2              
- [95] sp_1.4-5                  nnet_7.3-16              
- [97] scatterplot3d_0.3-41      RCurl_1.98-1.3           
- [99] tibble_3.1.2              crayon_1.4.1             
-[101] utf8_1.2.1                rmarkdown_2.9            
-[103] jpeg_0.1-8.1              viridis_0.6.1            
-[105] locfit_1.5-9.4            grid_4.0.2               
-[107] FNN_1.1.3                 git2r_0.28.0             
-[109] flashClust_1.01-2         digest_0.6.27            
-[111] httpuv_1.6.1              munsell_0.5.0            
-[113] beeswarm_0.4.0            viridisLite_0.4.0        
-[115] vipor_0.4.5               bslib_0.2.5.1            
-[117] tcltk_4.0.2              </code></pre>
+ [1] Rcpp_1.0.7          pillar_1.6.2        compiler_4.0.2     
+ [4] bslib_0.2.5.1       later_1.2.0         BiocManager_1.30.16
+ [7] jquerylib_0.1.4     git2r_0.28.0        tools_4.0.2        
+[10] packrat_0.6.0       digest_0.6.27       jsonlite_1.7.2     
+[13] evaluate_0.14       lifecycle_1.0.0     tibble_3.1.3       
+[16] pkgconfig_2.0.3     rlang_0.4.11        curl_4.3.2         
+[19] yaml_2.2.1          xfun_0.24           stringr_1.4.0      
+[22] knitr_1.33          fs_1.5.0            vctrs_0.3.8        
+[25] sass_0.4.0          askpass_1.1         rprojroot_2.0.2    
+[28] glue_1.4.2          R6_2.5.0            fansi_0.5.0        
+[31] rmarkdown_2.9       magrittr_2.0.1      whisker_0.4        
+[34] promises_1.2.0.1    ellipsis_0.3.2      htmltools_0.5.1.1  
+[37] httpuv_1.6.1        utf8_1.2.2          stringi_1.7.3      
+[40] openssl_1.4.4       crayon_1.4.1       </code></pre>
 </div>
 </div>
 

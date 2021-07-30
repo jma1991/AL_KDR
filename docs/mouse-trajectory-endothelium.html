@@ -360,7 +360,18 @@ div.tocify {
     </li>
   </ul>
 </li>
-<li class="dropdown-header">Analysis</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Analysis
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="signaling-analysis.html">Signaling analysis</a>
+    </li>
+  </ul>
+</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Mouse Atlas
@@ -441,7 +452,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-07-27
+<strong>Last updated:</strong> 2021-07-30
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -532,16 +543,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtreed65ba8bf426d24bc092359f160794242a5cf086etargetblankd65ba8ba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jma1991/AL_KDR/tree/d65ba8bf426d24bc092359f160794242a5cf086e" target="_blank">d65ba8b</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtree23aff3d5cba9654622fa2ce09d796e46b62a12b7targetblank23aff3da"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jma1991/AL_KDR/tree/23aff3d5cba9654622fa2ce09d796e46b62a12b7" target="_blank">23aff3d</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtreed65ba8bf426d24bc092359f160794242a5cf086etargetblankd65ba8ba" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjma1991ALKDRtree23aff3d5cba9654622fa2ce09d796e46b62a12b7targetblank23aff3da" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/jma1991/AL_KDR/tree/d65ba8bf426d24bc092359f160794242a5cf086e" target="_blank">d65ba8b</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/jma1991/AL_KDR/tree/23aff3d5cba9654622fa2ce09d796e46b62a12b7" target="_blank">23aff3d</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -552,44 +563,20 @@ Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
     Ignored:    analysis/cache/
-    Ignored:    data/AL_KDR_HET_C.rds
-    Ignored:    data/AL_KDR_HOM_D.rds
-    Ignored:    data/backup/
-    Ignored:    data/blacklist.csv
-    Ignored:    output/01-batch-integration.rds
-    Ignored:    output/02-reduced-dimensions.rds
-    Ignored:    output/03-clustering.rds
-    Ignored:    output/04-marker-detection.rds
-    Ignored:    output/mouse-integration.rds
-    Ignored:    output/mouse-pseudotime-cardiomyocytes.rds
-    Ignored:    output/mouse-pseudotime-endothelium.rds
-    Ignored:    output/mouse-trajectory-cardiomyocytes.rds
-    Ignored:    output/mouse-trajectory-endothelium.rds
-
-Untracked files:
-    Untracked:  _workflowr.R
-    Untracked:  analysis/backup/
-    Untracked:  analysis/interactive.Rmd
-    Untracked:  code/Mode.R
-    Untracked:  code/backup/
-    Untracked:  code/cleanEmbryoAtlasData.R
-    Untracked:  code/cleanSCE.R
-    Untracked:  code/dist_clusters_diag.R
-    Untracked:  code/splitByCol.R
-    Untracked:  code/subsetPointsByGrid.R
-    Untracked:  code/weightedKNN.R
-    Untracked:  renv.lock
-    Untracked:  renv/
+    Ignored:    renv/.gitignore
+    Ignored:    renv/library/
+    Ignored:    renv/settings.dcf
+    Ignored:    renv/staging/
 
 Unstaged changes:
-    Modified:   .gitignore
-    Modified:   _workflowr.yml
+    Modified:   _workflowr.R
     Modified:   analysis/_site.yml
-    Deleted:    analysis/mouse-ontology.Rmd
-    Deleted:    analysis/mouse-pseudotime-supp.Rmd
-    Deleted:    analysis/mouse-pseudotime.Rmd
-    Deleted:    analysis/mouse-trajectory-supp.Rmd
-    Deleted:    analysis/mouse-trajectory.Rmd
+    Deleted:    code/backup/Mode.R
+    Deleted:    code/backup/cleanEmbryoAtlasData.R
+    Deleted:    code/backup/cleanSCE.R
+    Deleted:    code/backup/dist_clusters_diag.R
+    Deleted:    code/backup/plotHeatmapPseudotime.R
+    Deleted:    code/backup/splitByCol.R
 
 </code></pre>
 <p>
@@ -628,6 +615,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jma1991/AL_KDR/2a5e41b45dfaef1d0a69e943e685472b97ed25ed/docs/mouse-trajectory-endothelium.html" target="_blank">2a5e41b</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2021-07-27
+</td>
+<td>
+Build
+</td>
+</tr>
 <tr>
 <td>
 html
