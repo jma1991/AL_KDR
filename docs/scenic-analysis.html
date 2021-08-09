@@ -11,9 +11,8 @@
 
 <meta name="author" content="James Ashmore" />
 
-<meta name="date" content="2020-10-02" />
 
-<title>Mouse trajectory (Cardiomyocytes)</title>
+<title>SCENIC analysis</title>
 
 <script src="site_libs/header-attrs-2.9/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
@@ -428,9 +427,9 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Mouse trajectory (Cardiomyocytes)</h1>
+<h1 class="title toc-ignore">SCENIC analysis</h1>
 <h4 class="author">James Ashmore</h4>
-<h4 class="date">2020-10-02</h4>
+<h4 class="date">09 August, 2021</h4>
 
 </div>
 
@@ -590,7 +589,7 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <div id="versions" class="tab-pane fade">
 
 <p>
-These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/mouse-trajectory-cardiomyocytes.Rmd</code>) and HTML (<code>docs/mouse-trajectory-cardiomyocytes.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/scenic-analysis.Rmd</code>) and HTML (<code>docs/scenic-analysis.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
 </p>
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
@@ -616,67 +615,16 @@ Message
 <tbody>
 <tr>
 <td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jma1991/AL_KDR/defebbcfd2a47a8d82beaec7bd7beb6c4ff1b45e/docs/mouse-trajectory-cardiomyocytes.html" target="_blank">defebbc</a>
-</td>
-<td>
-James Ashmore
-</td>
-<td>
-2021-07-30
-</td>
-<td>
-Build
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jma1991/AL_KDR/2a5e41b45dfaef1d0a69e943e685472b97ed25ed/docs/mouse-trajectory-cardiomyocytes.html" target="_blank">2a5e41b</a>
-</td>
-<td>
-James Ashmore
-</td>
-<td>
-2021-07-27
-</td>
-<td>
-Build
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jma1991/AL_KDR/50daf93a916c05628af87f42afe1954fa74abede/docs/mouse-trajectory-cardiomyocytes.html" target="_blank">50daf93</a>
-</td>
-<td>
-James Ashmore
-</td>
-<td>
-2021-07-27
-</td>
-<td>
-Build
-</td>
-</tr>
-<tr>
-<td>
 Rmd
 </td>
 <td>
-<a href="https://github.com/jma1991/AL_KDR/blob/afe1ed4a0d63841e8dfec95bab0cb1afc3b35683/analysis/mouse-trajectory-cardiomyocytes.Rmd" target="_blank">afe1ed4</a>
+<a href="https://github.com/jma1991/AL_KDR/blob/03660f1fdc4e00dc8b7a1ef07f0042e9ca38767e/analysis/scenic-analysis.Rmd" target="_blank">03660f1</a>
 </td>
 <td>
 James Ashmore
 </td>
 <td>
-2021-07-27
+2021-08-09
 </td>
 <td>
 Build
@@ -689,13 +637,17 @@ Build
 </div>
 </div>
 </div>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>In this document we are going to analyse the output from the pySCENIC command-line software. SCENIC is a tool for single-cell regulatory network inference and clustering.</p>
+</div>
 <div id="setup" class="section level2">
 <h2>Setup</h2>
-<p>Setup chunk options:</p>
+<p>Define chunk options:</p>
 <pre class="r"><code>knitr::opts_chunk$set(
   autodep    = TRUE,
   cache      = TRUE,
-  cache.path = &quot;cache/mouse-trajectory-cardiomyocytes.Rmd/&quot;,
+  cache.path = &quot;cache/scenic-analysis.Rmd/&quot;,
   dev        = &quot;png&quot;,
   error      = FALSE,
   message    = FALSE,
@@ -704,283 +656,89 @@ Build
   out.width = &#39;100%&#39;
 )</code></pre>
 <p>Load Bioconductor packages:</p>
-<pre class="r"><code>library(BiocNeighbors)
-library(scater)
-library(scran)
-library(scuttle)
-library(slingshot)</code></pre>
+<pre class="r"><code>library(scuttle)</code></pre>
 <p>Load CRAN packages:</p>
-<pre class="r"><code>library(RColorBrewer)
-library(cluster)
-library(ggbeeswarm)
-library(ggforce)</code></pre>
-<p>Source user functions:</p>
-<pre class="r"><code>source(&quot;code/splitByCol.R&quot;)</code></pre>
+<pre class="r"><code>library(hues)
+library(pheatmap)
+library(viridis)</code></pre>
+<p>Define function to import AUCell matrix from text format:</p>
+<pre class="r"><code>importAUCfromText &lt;- function(fileName, rows=&quot;regulons&quot;, columns=&quot;cells&quot;, transpose=TRUE, newNames=NULL) {
+  aucMatrix &lt;- data.table::fread(fileName, drop=1)
+  cellNames &lt;- unname(unlist(data.table::fread(fileName, select=1, skip=1)))
+  if(transpose) aucMatrix &lt;- t(as.matrix(aucMatrix))
+  colnames(aucMatrix) &lt;- cellNames
+  if(!is.null(newNames)) rownames(aucMatrix) &lt;- unname(newNames[rownames(aucMatrix)])
+  names(dimnames(aucMatrix)) &lt;- c(rows, columns)
+  return(aucMatrix)
+}</code></pre>
+</div>
+<div id="results" class="section level2">
+<h2>Results</h2>
 <p>Read experiment object:</p>
-<pre class="r"><code>sce &lt;- readRDS(&quot;output/mouse-integration.rds&quot;)</code></pre>
-<p>Define colour palettes:</p>
-<pre class="r"><code>EmbryoCelltypeColours &lt;- MouseGastrulationData::EmbryoCelltypeColours
+<pre class="r"><code>sce &lt;- readRDS(&quot;output/04-marker-detection.rds&quot;)</code></pre>
+<p>Make cell names unique:</p>
+<pre class="r"><code>N &lt;- ncol(sce)
 
-EmbryoGenotypeColours &lt;- c(&quot;wt&quot; = &quot;#76B7B2&quot;, &quot;het&quot; = &quot;#B07AA1&quot;, &quot;hom&quot; = &quot;#EDC948&quot;)
+colnames(sce) &lt;- seq_len(N)</code></pre>
+<p>Import activity matrix:</p>
+<pre class="r"><code>auc &lt;- importAUCfromText(&quot;output/pyscenic/aucell.csv&quot;)</code></pre>
+<p>Rename experiment cells:</p>
+<pre class="r"><code>colnames(auc) &lt;- colnames(sce)</code></pre>
+<p>Order activity matrix by cluster:</p>
+<pre class="r"><code>auc &lt;- auc[, order(sce$cluster_integrated)]</code></pre>
+<p>Create heatmap colour palette:</p>
+<pre class="r"><code>phenotype.palette &lt;- c(&quot;HET&quot; = &quot;#BAB0AC&quot;, &quot;HOM&quot; = &quot;#E15759&quot;)
 
-EmbryoSourceColours &lt;- c(&quot;atlas&quot; = &quot;#BAB0AC&quot;, &quot;allantois&quot; = &quot;#E15759&quot;)</code></pre>
-<p>Define informative labels:</p>
-<pre class="r"><code>EmbryoGenotypeLabels &lt;- c(&quot;wt&quot; = &quot;Flk1 (WT)&quot;, &quot;het&quot; = &quot;Flk1 (Het)&quot;, &quot;hom&quot; = &quot;Flk1 (Hom)&quot;)
+cluster.palette &lt;- iwanthue(n = nlevels(sce$cluster_integrated))
 
-EmbryoSourceLabels &lt;- c(&quot;atlas&quot; = &quot;Embryo Atlas&quot;, &quot;allantois&quot; = &quot;Embryo Allantois&quot;)
+cluster.palette &lt;- setNames(cluster.palette, levels(sce$cluster_integrated))
 
-EmbryoNeighborLabels &lt;- c(&quot;TRUE&quot; = &quot;Neighbor&quot;, &quot;FALSE&quot; = &quot;Non-neighbor&quot;)</code></pre>
-</div>
-<div id="neighbors" class="section level2">
-<h2>Neighbors</h2>
-<p>Split experiment object by source:</p>
-<pre class="r"><code>sce &lt;- splitByCol(sce, sce$source)</code></pre>
-<p>Extract corrected PCA matrix:</p>
-<pre class="r"><code>dim &lt;- list(
-  atlas = reducedDim(sce$atlas, &quot;corrected&quot;),
-  allantois = reducedDim(sce$allantois, &quot;corrected&quot;)
+celltype.palette &lt;- MouseGastrulationData::EmbryoCelltypeColours
+
+celltype.palette &lt;- subset(celltype.palette, names(celltype.palette) %in% sce$celltype)</code></pre>
+<p>Create heatmap annotation:</p>
+<pre class="r"><code>ann &lt;- list(
+  annotation_col = data.frame(
+    Cluster = sce$cluster_integrated, 
+    Celltype = sce$celltype, 
+    Phenotype = sce$phenotype, 
+    row.names = colnames(sce)
+  ),
+  annotation_colors = list(
+    Cluster = cluster.palette, 
+    Celltype = celltype.palette, 
+    Phenotype = phenotype.palette
+  )
 )</code></pre>
-<p>Find the kNN in the atlas data for each point in the allantois data:</p>
-<pre class="r"><code>set.seed(1111100100)
-
-knn &lt;- queryKNN(X = dim$atlas, query = dim$allantois, k = 1)</code></pre>
-<p>Create matrix of kNN annotations:</p>
-<pre class="r"><code>knn$cell &lt;- structure(sce$atlas$cell[knn$index], .Dim = dim(knn$index))
-
-knn$stage &lt;- structure(sce$atlas$stage[knn$index], .Dim = dim(knn$index))
-
-knn$celltype &lt;- structure(sce$atlas$celltype[knn$index], .Dim = dim(knn$index))</code></pre>
-<p>Create plotting data for exploration:</p>
-<pre class="r"><code>dat &lt;- rbind(makePerCellDF(sce$atlas), makePerCellDF(sce$allantois))
-
-dat$neighbor &lt;- FALSE
-
-dat$neighbor[dat$cell %in% knn$cell] &lt;- TRUE</code></pre>
-<p>Plot TSNE of kNN cells coloured by celltype:</p>
-<pre class="r"><code>ggplot(dat, aes(TSNE.1, TSNE.2, colour = celltype)) + 
-  geom_point(size = 0.1) + 
-  scale_colour_manual(
-    name = &quot;Celltype&quot;,
-    values = EmbryoCelltypeColours
-  ) + 
-  facet_grid(
-    rows = vars(neighbor),
-    cols = vars(source),
-    labeller = labeller(
-      neighbor = EmbryoNeighborLabels,
-      source = EmbryoSourceLabels
-    )
-  ) +
-  theme_no_axes() +
-  theme(aspect.ratio = 1)</code></pre>
-<p><img src="figure/mouse-trajectory-cardiomyocytes.Rmd/unnamed-chunk-13-1.png" width="100%" style="display: block; margin: auto;" /></p>
-<p>Plot TSNE of kNN cells coloured by genotype:</p>
-<pre class="r"><code>ggplot(dat, aes(TSNE.1, TSNE.2, colour = genotype)) + 
-  geom_point(size = 0.1) + 
-  scale_colour_manual(
-    name = &quot;Genotype&quot;,
-    values = EmbryoGenotypeColours,
-    labels = EmbryoGenotypeLabels
-  ) + 
-  facet_grid(
-    rows = vars(neighbor),
-    cols = vars(source),
-    labeller = labeller(
-      neighbor = EmbryoNeighborLabels,
-      source = EmbryoSourceLabels
-    )
-  ) +
-  theme_no_axes() +
-  theme(aspect.ratio = 1)</code></pre>
-<p><img src="figure/mouse-trajectory-cardiomyocytes.Rmd/unnamed-chunk-14-1.png" width="100%" style="display: block; margin: auto;" /></p>
-<p>Subset experiment object to allantois data and kNN atlas data:</p>
-<pre class="r"><code>idx &lt;- unique(as.vector(knn$index))
-
-sce &lt;- cbind(sce$atlas[, idx], sce$allantois)</code></pre>
-</div>
-<div id="diffusion" class="section level2">
-<h2>Diffusion</h2>
-<p>Create a diffusion map from the batch-corrected PCA matrix:</p>
-<pre class="r"><code>set.seed(0101111001)
-
-sce &lt;- runDiffusionMap(sce, dimred = &quot;corrected&quot;)</code></pre>
-<p>Identify number of clusters to build a minimum spanning tree in slingshot:</p>
-<pre class="r"><code>set.seed(0001010100)
-
-dim &lt;- reducedDim(sce, &quot;DiffusionMap&quot;)
-
-fit &lt;- clusGap(dim, kmeans, K.max = 10)
-
-num &lt;- maxSE(fit$Tab[, &quot;gap&quot;], fit$Tab[, &quot;SE.sim&quot;])</code></pre>
-<p>Cluster the cells to achieve a more granular trajectory:</p>
-<pre class="r"><code>set.seed(0001010100)
-
-dim &lt;- reducedDim(sce, &quot;DiffusionMap&quot;)
-
-fit &lt;- kmeans(dim, centers = num)
-
-sce$slingClusters &lt;- factor(fit$cluster)</code></pre>
-<p>Setup colour palette for slingshot clusters:</p>
-<pre class="r"><code>EmbryoClusterColours &lt;- brewer.pal(nlevels(sce$slingClusters), name = &quot;Set3&quot;)
-
-names(EmbryoClusterColours) &lt;- levels(sce$slingClusters)</code></pre>
-<p>Setup colour palette for slingshot celltypes:</p>
-<pre class="r"><code>EmbryoCelltypeColours &lt;- MouseGastrulationData::EmbryoCelltypeColours
-
-ind &lt;- names(EmbryoCelltypeColours) %in% sce$celltype
-
-EmbryoCelltypeColours &lt;- EmbryoCelltypeColours[ind]</code></pre>
-<p>Create plotting data for exploration:</p>
-<pre class="r"><code>dat &lt;- makePerCellDF(sce)
-
-bak &lt;- makePerCellDF(sce, use.coldata = FALSE, use.dimred = &quot;DiffusionMap&quot;)</code></pre>
-<p>Plot DiffusionMap of cells coloured by cluster:</p>
-<pre class="r"><code>ggplot(dat, aes(DiffusionMap.1, DiffusionMap.2, colour = slingClusters)) + 
-  geom_point(data = bak, colour = &quot;gainsboro&quot;) + 
-  geom_point(size = 2) + 
-  scale_colour_manual(
-    name = &quot;Cluster&quot;,
-    values = EmbryoClusterColours
-  ) + 
-  facet_grid(
-    rows = vars(genotype),
-    cols = vars(source),
-    labeller = labeller(
-      genotype = EmbryoGenotypeLabels,
-      source = EmbryoSourceLabels
-    )
-  ) +
-  theme_no_axes() +
-  theme(aspect.ratio = 1)</code></pre>
-<p><img src="figure/mouse-trajectory-cardiomyocytes.Rmd/unnamed-chunk-22-1.png" width="100%" style="display: block; margin: auto;" /></p>
-<p>Plot DiffusionMap of cells coloured by celltype:</p>
-<pre class="r"><code>ggplot(dat, aes(DiffusionMap.1, DiffusionMap.2, colour = celltype)) + 
-  geom_point(data = bak, colour = &quot;gainsboro&quot;) + 
-  geom_point(size = 2) + 
-  scale_colour_manual(
-    name = &quot;Celltype&quot;,
-    values = EmbryoCelltypeColours,
-    drop = TRUE
-  ) + 
-  facet_grid(
-    rows = vars(genotype),
-    cols = vars(source),
-    labeller = labeller(
-      genotype = EmbryoGenotypeLabels,
-      source = EmbryoSourceLabels
-    )
-  ) +
-  theme_no_axes() +
-  theme(aspect.ratio = 1)</code></pre>
-<p><img src="figure/mouse-trajectory-cardiomyocytes.Rmd/unnamed-chunk-23-1.png" width="100%" style="display: block; margin: auto;" /></p>
-</div>
-<div id="trajectory" class="section level2">
-<h2>Trajectory</h2>
-<p>Perform lineage inference with Slingshot:</p>
-<pre class="r"><code>set.seed(1010000010)
-
-sce &lt;- slingshot(
-  data = sce,
-  clusterLabels = sce$slingClusters,
-  reducedDim = &quot;DiffusionMap&quot;,
-  start.clus = 6
+<p>Plot matrix of AUC values for all regulons:</p>
+<pre class="r"><code>pheatmap(
+  mat = auc,
+  color = viridis(100),
+  cluster_cols = FALSE,
+  annotation_col = ann$annotation_col,
+  annotation_colors = ann$annotation_colors,
+  border_color = NA,
+  show_rownames = FALSE,
+  show_colnames = FALSE,
 )</code></pre>
-<p>Construct slingshot curve for trajectory 1:</p>
-<pre class="r"><code>sc1 &lt;- embedCurves(sce, &quot;DiffusionMap&quot;)
-
-sc1 &lt;- slingCurves(sc1)[[1]]
-
-sc1 &lt;- data.frame(sc1$s[sc1$ord, ])</code></pre>
-<p>Construct slingshot curve for trajectory 2:</p>
-<pre class="r"><code>sc2 &lt;- embedCurves(sce, &quot;DiffusionMap&quot;)
-
-sc2 &lt;- slingCurves(sc2)[[2]]
-
-sc2 &lt;- data.frame(sc2$s[sc2$ord, ])</code></pre>
-<p>Plot DiffusionMap of cells coloured by pseudotime 1:</p>
-<pre class="r"><code>ggcells(sce, aes(DiffusionMap.1, DiffusionMap.2)) + 
-  geom_point(aes(colour = slingPseudotime_1), size = 3) + 
-  geom_path(data = sc1, aes(DC1, DC2), size = 1.5, arrow = arrow()) + 
-  scale_colour_viridis_c(name = &quot;Pseudotime&quot;) + 
-  labs(x = &quot;DC 1&quot;, y = &quot;DC 2&quot;) +
-  theme_bw() + 
-  theme(aspect.ratio = 1)</code></pre>
-<p><img src="figure/mouse-trajectory-cardiomyocytes.Rmd/unnamed-chunk-27-1.png" width="100%" style="display: block; margin: auto;" /></p>
-<p>Plot DiffusionMap of cells coloured by pseudotime 2:</p>
-<pre class="r"><code>ggcells(sce, aes(DiffusionMap.1, DiffusionMap.2)) + 
-  geom_point(aes(colour = slingPseudotime_2), size = 3) + 
-  geom_path(data = sc2, aes(DC1, DC2), size = 1.5, arrow = arrow()) + 
-  scale_colour_viridis_c(name = &quot;Pseudotime&quot;) + 
-  labs(x = &quot;DC 1&quot;, y = &quot;DC 2&quot;) + 
-  theme_bw() + 
-  theme(aspect.ratio = 1)</code></pre>
-<p><img src="figure/mouse-trajectory-cardiomyocytes.Rmd/unnamed-chunk-28-1.png" width="100%" style="display: block; margin: auto;" /></p>
-<p>Plot DiffusionMap of cells coloured by cluster:</p>
-<pre class="r"><code>ggcells(sce, aes(DiffusionMap.1, DiffusionMap.2)) + 
-  geom_point(aes(colour = slingClusters), size = 3) + 
-  scale_colour_manual(name = &quot;Cluster&quot;, values = EmbryoClusterColours) + 
-  geom_path(data = sc1, aes(DC1, DC2), size = 1.5, arrow = arrow()) + 
-  geom_path(data = sc2, aes(DC1, DC2), size = 1.5, arrow = arrow()) + 
-  labs(x = &quot;DC 1&quot;, y = &quot;DC 2&quot;) + 
-  theme_bw() + 
-  theme(aspect.ratio = 1)</code></pre>
-<p><img src="figure/mouse-trajectory-cardiomyocytes.Rmd/unnamed-chunk-29-1.png" width="100%" style="display: block; margin: auto;" /></p>
-<p>Plot DiffusionMap of cells coloured by celltype:</p>
-<pre class="r"><code>ggcells(sce, aes(DiffusionMap.1, DiffusionMap.2)) + 
-  geom_point(aes(colour = celltype), size = 3) + 
-  scale_colour_manual(name = &quot;Celltype&quot;, values = EmbryoCelltypeColours) + 
-  geom_path(data = sc1, aes(DC1, DC2), size = 1.5, arrow = arrow()) + 
-  geom_path(data = sc2, aes(DC1, DC2), size = 1.5, arrow = arrow()) + 
-  labs(x = &quot;DC 1&quot;, y = &quot;DC 2&quot;) + 
-  theme_bw() + 
-  theme(aspect.ratio = 1)</code></pre>
-<p><img src="figure/mouse-trajectory-cardiomyocytes.Rmd/unnamed-chunk-30-1.png" width="100%" style="display: block; margin: auto;" /></p>
-<p>Plot DiffusionMap of cells coloured by genotype:</p>
-<pre class="r"><code>ggcells(sce, aes(DiffusionMap.1, DiffusionMap.2)) + 
-  geom_point(aes(colour = genotype), size = 3) + 
-  scale_colour_manual(name = &quot;Genotype&quot;, values = EmbryoGenotypeColours, label = EmbryoGenotypeLabels) + 
-  geom_path(data = sc1, aes(DC1, DC2), size = 1.5, arrow = arrow()) + 
-  geom_path(data = sc2, aes(DC1, DC2), size = 1.5, arrow = arrow()) + 
-  labs(x = &quot;DC 1&quot;, y = &quot;DC 2&quot;) + 
-  theme_bw() + 
-  theme(aspect.ratio = 1)</code></pre>
-<p><img src="figure/mouse-trajectory-cardiomyocytes.Rmd/unnamed-chunk-31-1.png" width="100%" style="display: block; margin: auto;" /></p>
-<p>Plot cells ordered by pseudotime 1 and coloured by celltype:</p>
-<pre class="r"><code>dat &lt;- makePerCellDF(sce)
-
-dat &lt;- subset(dat, !is.na(slingPseudotime_1))
-
-ggplot(dat, aes(slingPseudotime_1, genotype, colour = celltype)) + 
-  geom_quasirandom(groupOnX = FALSE) + 
-  scale_colour_manual(name = &quot;Celltype&quot;, values = EmbryoCelltypeColours) + 
-  scale_y_discrete(labels = EmbryoGenotypeLabels) + 
-  facet_wrap(~ source, labeller = labeller(source = EmbryoSourceLabels)) + 
-  labs(x = &quot;Pseudotime&quot;, y = &quot;Genotype&quot;) + 
-  theme_bw() + 
-  theme(aspect.ratio = 1)</code></pre>
-<p><img src="figure/mouse-trajectory-cardiomyocytes.Rmd/unnamed-chunk-32-1.png" width="100%" style="display: block; margin: auto;" /></p>
-<p>Plot cells ordered by pseudotime 2 and coloured by celltype:</p>
-<pre class="r"><code>dat &lt;- makePerCellDF(sce)
-
-dat &lt;- subset(dat, !is.na(slingPseudotime_2))
-
-ggplot(dat, aes(slingPseudotime_2, genotype, colour = celltype)) + 
-  geom_quasirandom(groupOnX = FALSE) + 
-  scale_colour_manual(name = &quot;Celltype&quot;, values = EmbryoCelltypeColours) + 
-  scale_y_discrete(labels = EmbryoGenotypeLabels) + 
-  facet_wrap(~ source, labeller = labeller(source = EmbryoSourceLabels)) + 
-  labs(x = &quot;Pseudotime&quot;, y = &quot;Genotype&quot;) + 
-  theme_bw() + 
-  theme(aspect.ratio = 1)</code></pre>
-<p><img src="figure/mouse-trajectory-cardiomyocytes.Rmd/unnamed-chunk-33-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><img src="figure/scenic-analysis.Rmd/unnamed-chunk-12-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>Identify most variable regulons:</p>
+<pre class="r"><code>idx &lt;- order(rowVars(auc), decreasing = TRUE)[1:30]</code></pre>
+<p>Plot matrix of AUC values for outlier regulons:</p>
+<pre class="r"><code>pheatmap(
+  mat = auc[idx, ],
+  color = viridis(100),
+  cluster_cols = FALSE,
+  annotation_col = ann$annotation_col,
+  annotation_colors = ann$annotation_colors,
+  border_color = NA,
+  show_rownames = TRUE,
+  show_colnames = FALSE,
+)</code></pre>
+<p><img src="figure/scenic-analysis.Rmd/unnamed-chunk-14-1.png" width="100%" style="display: block; margin: auto;" /></p>
 </div>
 <div id="summary" class="section level2">
 <h2>Summary</h2>
-<div id="output" class="section level3">
-<h3>Output</h3>
-<p>Save integrated experiment object to disk:</p>
-<pre class="r"><code>saveRDS(sce, file = &quot;output/mouse-trajectory-cardiomyocytes.rds&quot;)</code></pre>
-</div>
 <div id="session" class="section level3">
 <h3>Session</h3>
 <p>Print session information:</p>
@@ -1001,93 +759,66 @@ attached base packages:
 [8] methods   base     
 
 other attached packages:
- [1] ggforce_0.3.3               ggbeeswarm_0.6.0           
- [3] cluster_2.1.2               RColorBrewer_1.1-2         
- [5] slingshot_1.8.0             princurve_2.1.6            
- [7] scuttle_1.0.4               scran_1.18.7               
- [9] scater_1.18.6               ggplot2_3.3.5              
-[11] SingleCellExperiment_1.12.0 SummarizedExperiment_1.20.0
-[13] Biobase_2.50.0              GenomicRanges_1.42.0       
-[15] GenomeInfoDb_1.26.7         IRanges_2.24.1             
-[17] S4Vectors_0.28.1            BiocGenerics_0.36.1        
-[19] MatrixGenerics_1.2.1        matrixStats_0.60.0         
-[21] BiocNeighbors_1.8.2         workflowr_1.6.2            
+ [1] viridis_0.6.1               viridisLite_0.4.0          
+ [3] pheatmap_1.0.12             hues_0.2.0                 
+ [5] scuttle_1.0.4               SingleCellExperiment_1.12.0
+ [7] SummarizedExperiment_1.20.0 Biobase_2.50.0             
+ [9] GenomicRanges_1.42.0        GenomeInfoDb_1.26.7        
+[11] IRanges_2.24.1              S4Vectors_0.28.1           
+[13] BiocGenerics_0.36.1         MatrixGenerics_1.2.1       
+[15] matrixStats_0.60.0          workflowr_1.6.2            
 
 loaded via a namespace (and not attached):
-  [1] utf8_1.2.2                    tidyselect_1.1.1             
-  [3] RSQLite_2.2.7                 AnnotationDbi_1.52.0         
-  [5] grid_4.0.2                    ranger_0.13.1                
-  [7] BiocParallel_1.24.1           munsell_0.5.0                
-  [9] destiny_3.4.0                 codetools_0.2-18             
- [11] statmod_1.4.36                withr_2.4.2                  
- [13] colorspace_2.0-2              highr_0.9                    
- [15] knitr_1.33                    robustbase_0.93-8            
- [17] vcd_1.4-8                     VIM_6.1.1                    
- [19] TTR_0.24.2                    labeling_0.4.2               
- [21] git2r_0.28.0                  GenomeInfoDbData_1.2.4       
- [23] polyclip_1.10-0               bit64_4.0.5                  
- [25] farver_2.1.0                  rprojroot_2.0.2              
- [27] vctrs_0.3.8                   generics_0.1.0               
- [29] xfun_0.24                     ggthemes_4.2.4               
- [31] BiocFileCache_1.14.0          R6_2.5.0                     
- [33] rsvd_1.0.5                    RcppEigen_0.3.3.9.1          
- [35] locfit_1.5-9.4                bitops_1.0-7                 
- [37] cachem_1.0.5                  DelayedArray_0.16.3          
- [39] assertthat_0.2.1              promises_1.2.0.1             
- [41] scales_1.1.1                  nnet_7.3-16                  
- [43] beeswarm_0.4.0                gtable_0.3.0                 
- [45] beachmat_2.6.4                rlang_0.4.11                 
- [47] scatterplot3d_0.3-41          hexbin_1.28.2                
- [49] BiocManager_1.30.16           yaml_2.2.1                   
- [51] abind_1.4-5                   httpuv_1.6.1                 
- [53] tools_4.0.2                   ellipsis_0.3.2               
- [55] jquerylib_0.1.4               proxy_0.4-26                 
- [57] Rcpp_1.0.7                    sparseMatrixStats_1.2.1      
- [59] zlibbioc_1.36.0               purrr_0.3.4                  
- [61] RCurl_1.98-1.3                viridis_0.6.1                
- [63] zoo_1.8-9                     haven_2.4.1                  
- [65] fs_1.5.0                      magrittr_2.0.1               
- [67] data.table_1.14.0             RSpectra_0.16-0              
- [69] openxlsx_4.2.4                lmtest_0.9-38                
- [71] pcaMethods_1.82.0             whisker_0.4                  
- [73] hms_1.1.0                     mime_0.11                    
- [75] evaluate_0.14                 xtable_1.8-4                 
- [77] smoother_1.1                  rio_0.5.27                   
- [79] readxl_1.3.1                  gridExtra_2.3                
- [81] compiler_4.0.2                tibble_3.1.3                 
- [83] crayon_1.4.1                  htmltools_0.5.1.1            
- [85] later_1.2.0                   tidyr_1.1.3                  
- [87] DBI_1.1.1                     tweenr_1.0.2                 
- [89] ExperimentHub_1.16.1          dbplyr_2.1.1                 
- [91] MASS_7.3-54                   rappdirs_0.3.3               
- [93] boot_1.3-28                   Matrix_1.3-4                 
- [95] car_3.0-11                    igraph_1.2.6                 
- [97] forcats_0.5.1                 pkgconfig_2.0.3              
- [99] foreign_0.8-81                laeken_0.5.1                 
-[101] sp_1.4-5                      vipor_0.4.5                  
-[103] bslib_0.2.5.1                 dqrng_0.3.0                  
-[105] XVector_0.30.0                stringr_1.4.0                
-[107] digest_0.6.27                 rmarkdown_2.9                
-[109] cellranger_1.1.0              edgeR_3.32.1                 
-[111] DelayedMatrixStats_1.12.3     curl_4.3.2                   
-[113] shiny_1.6.0                   ggplot.multistats_1.0.0      
-[115] lifecycle_1.0.0               nlme_3.1-152                 
-[117] jsonlite_1.7.2                carData_3.0-4                
-[119] MouseGastrulationData_1.4.0   viridisLite_0.4.0            
-[121] limma_3.46.0                  fansi_0.5.0                  
-[123] pillar_1.6.1                  lattice_0.20-44              
-[125] fastmap_1.1.0                 httr_1.4.2                   
-[127] DEoptimR_1.0-9                xts_0.12.1                   
-[129] interactiveDisplayBase_1.28.0 glue_1.4.2                   
-[131] zip_2.2.0                     bluster_1.0.0                
-[133] BiocVersion_3.12.0            bit_4.0.4                    
-[135] class_7.3-19                  stringi_1.7.3                
-[137] sass_0.4.0                    blob_1.2.2                   
-[139] RcppHNSW_0.3.0                BiocSingular_1.6.0           
-[141] AnnotationHub_2.22.1          memoise_2.0.0                
-[143] dplyr_1.0.7                   knn.covertree_1.0            
-[145] irlba_2.3.3                   e1071_1.7-7                  
-[147] ape_5.5                      </code></pre>
+  [1] colorspace_2.0-2              ellipsis_0.3.2               
+  [3] rprojroot_2.0.2               bluster_1.0.0                
+  [5] XVector_0.30.0                BiocNeighbors_1.8.2          
+  [7] fs_1.5.0                      farver_2.1.0                 
+  [9] bit64_4.0.5                   AnnotationDbi_1.52.0         
+ [11] interactiveDisplayBase_1.28.0 fansi_0.5.0                  
+ [13] codetools_0.2-18              sparseMatrixStats_1.2.1      
+ [15] cachem_1.0.5                  knitr_1.33                   
+ [17] jsonlite_1.7.2                dbplyr_2.1.1                 
+ [19] shiny_1.6.0                   BiocManager_1.30.16          
+ [21] compiler_4.0.2                httr_1.4.2                   
+ [23] dqrng_0.3.0                   assertthat_0.2.1             
+ [25] Matrix_1.3-4                  fastmap_1.1.0                
+ [27] limma_3.46.0                  later_1.2.0                  
+ [29] BiocSingular_1.6.0            htmltools_0.5.1.1            
+ [31] tools_4.0.2                   rsvd_1.0.5                   
+ [33] igraph_1.2.6                  gtable_0.3.0                 
+ [35] glue_1.4.2                    GenomeInfoDbData_1.2.4       
+ [37] dplyr_1.0.7                   rappdirs_0.3.3               
+ [39] Rcpp_1.0.7                    MouseGastrulationData_1.4.0  
+ [41] jquerylib_0.1.4               vctrs_0.3.8                  
+ [43] ExperimentHub_1.16.1          DelayedMatrixStats_1.12.3    
+ [45] xfun_0.24                     stringr_1.4.0                
+ [47] beachmat_2.6.4                mime_0.11                    
+ [49] lifecycle_1.0.0               irlba_2.3.3                  
+ [51] statmod_1.4.36                AnnotationHub_2.22.1         
+ [53] edgeR_3.32.1                  zlibbioc_1.36.0              
+ [55] scales_1.1.1                  promises_1.2.0.1             
+ [57] RColorBrewer_1.1-2            yaml_2.2.1                   
+ [59] curl_4.3.2                    memoise_2.0.0                
+ [61] gridExtra_2.3                 ggplot2_3.3.5                
+ [63] sass_0.4.0                    stringi_1.7.3                
+ [65] RSQLite_2.2.7                 highr_0.9                    
+ [67] BiocVersion_3.12.0            scran_1.18.7                 
+ [69] BiocParallel_1.24.1           rlang_0.4.11                 
+ [71] pkgconfig_2.0.3               bitops_1.0-7                 
+ [73] evaluate_0.14                 lattice_0.20-44              
+ [75] purrr_0.3.4                   bit_4.0.4                    
+ [77] tidyselect_1.1.1              magrittr_2.0.1               
+ [79] R6_2.5.0                      generics_0.1.0               
+ [81] DelayedArray_0.16.3           DBI_1.1.1                    
+ [83] pillar_1.6.2                  whisker_0.4                  
+ [85] RCurl_1.98-1.3                tibble_3.1.3                 
+ [87] crayon_1.4.1                  utf8_1.2.2                   
+ [89] BiocFileCache_1.14.0          rmarkdown_2.9                
+ [91] locfit_1.5-9.4                grid_4.0.2                   
+ [93] data.table_1.14.0             blob_1.2.2                   
+ [95] git2r_0.28.0                  digest_0.6.27                
+ [97] xtable_1.8-4                  httpuv_1.6.1                 
+ [99] munsell_0.5.0                 bslib_0.2.5.1                </code></pre>
 </div>
 </div>
 
