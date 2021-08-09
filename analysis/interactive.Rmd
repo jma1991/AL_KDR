@@ -12,7 +12,7 @@ editor_options:
 Set chunk options:
 
 ```{r}
-knitr::opts_chunk$set(eval = TRUE)
+knitr::opts_chunk$set(eval = FALSE)
 ```
 
 Load CRAN packages:
