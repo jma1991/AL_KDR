@@ -21,6 +21,8 @@ navbar:
       menu:
         - text: "Signaling analysis"
           href: signaling-analysis.html
+        - text: "SCENIC analysis"
+          href: scenic-analysis.html
     - text: "Mouse Atlas"
       menu:
         - text: "Mouse integration"
