@@ -12,7 +12,7 @@ editor_options:
 Set chunk options:
 
 ```{r}
-knitr::opts_chunk$set(eval = FALSE)
+knitr::opts_chunk$set(eval = TRUE)
 ```
 
 Load CRAN packages:
@@ -79,7 +79,7 @@ rownames(sce) <- scuttle::uniquifyFeatureNames(rowData(sce)$gene_id, rowData(sce
 sce$EGFP <- counts(sce)["EGFP", ] > 0
 sce$Etv2 <- counts(sce)["Etv2", ] > 0
 sce$Kdr <- counts(sce)["Kdr", ] > 0
-sce$EGFP_AND_Etv2 <- sce$EGFP & sce$Kdr
+sce$EGFP_AND_Etv2 <- sce$EGFP & sce$Etv2
 sce$Etv2_AND_Kdr <- sce$Etv2 & sce$Kdr
 
 # Define column data colours
@@ -190,10 +190,8 @@ sce <- readRDS("data.rds")
 rownames(sce) <- scuttle::uniquifyFeatureNames(rowData(sce)$gene_id, rowData(sce)$gene_name)
 
 # Define column data variables
-sce$EGFP <- counts(sce)["EGFP", ] > 0
 sce$Etv2 <- counts(sce)["Etv2", ] > 0
 sce$Kdr <- counts(sce)["Kdr", ] > 0
-sce$EGFP_AND_Etv2 <- sce$EGFP & sce$Kdr
 sce$Etv2_AND_Kdr <- sce$Etv2 & sce$Kdr
 
 # Define column data colours
@@ -251,10 +249,8 @@ iSEEOptions$set(color.maxlevels = 37)
 ecm <- ExperimentColorMap(
   colData = list(
     celltype = celltype_colours,
-    EGFP = boolean_colours,
     Etv2 = boolean_colours,
     Kdr = boolean_colours,
-    EGFP_AND_Etv2 = boolean_colours,
     Etv2_AND_Kdr = boolean_colours
   )
 )
@@ -304,10 +300,8 @@ sce <- readRDS("data.rds")
 rownames(sce) <- scuttle::uniquifyFeatureNames(rowData(sce)$gene_id, rowData(sce)$gene_name)
 
 # Define column data variables
-sce$EGFP <- counts(sce)["EGFP", ] > 0
 sce$Etv2 <- counts(sce)["Etv2", ] > 0
 sce$Kdr <- counts(sce)["Kdr", ] > 0
-sce$EGFP_AND_Etv2 <- sce$EGFP & sce$Kdr
 sce$Etv2_AND_Kdr <- sce$Etv2 & sce$Kdr
 
 # Define column data colours
@@ -365,10 +359,8 @@ iSEEOptions$set(color.maxlevels = 37)
 ecm <- ExperimentColorMap(
   colData = list(
     celltype = celltype_colours,
-    EGFP = boolean_colours,
     Etv2 = boolean_colours,
     Kdr = boolean_colours,
-    EGFP_AND_Etv2 = boolean_colours,
     Etv2_AND_Kdr = boolean_colours
   )
 )
